@@ -1,2 +1,4 @@
 [flake8]
 max-line-length = 90
+per-file-ignores =
+    tests/settings.py:F403,F405
