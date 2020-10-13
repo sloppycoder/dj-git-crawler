@@ -461,6 +461,17 @@ checkqa_mypy = ["mypy (0.780)"]
 testing = ["argcomplete", "hypothesis (>=3.56)", "mock", "nose", "requests", "xmlschema"]
 
 [[package]]
+name = "pytest-dependency"
+version = "0.5.1"
+description = "Manage dependencies of tests"
+category = "dev"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+pytest = ">=3.6.0"
+
+[[package]]
 name = "pytest-django"
 version = "3.10.0"
 description = "A Django plugin for pytest."
@@ -474,6 +485,19 @@ pytest = ">=3.6"
 [package.extras]
 docs = ["sphinx", "sphinx-rtd-theme"]
 testing = ["django", "django-configurations (>=2.0)", "six"]
+
+[[package]]
+name = "pytest-django-ordering"
+version = "1.2.0"
+description = "A pytest plugin for preserving the order in which Django runs tests."
+category = "dev"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+django = "*"
+pytest = ">=2.3.0"
+pytest-django = "*"
 
 [[package]]
 name = "python-crontab"
@@ -652,7 +676,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "d00ac56a4b96d8a4f863007b9c51c5c535aa4a29df8d779a5d90ce8a236fb7b9"
+content-hash = "20e6aef5610dc41ce86fa220e5463a5f962996045e9ce5a40c4528da92e6d062"
 
 [metadata.files]
 amqp = [
@@ -816,9 +840,16 @@ pytest = [
     {file = "pytest-6.1.1-py3-none-any.whl", hash = "sha256:7a8190790c17d79a11f847fba0b004ee9a8122582ebff4729a082c109e81a4c9"},
     {file = "pytest-6.1.1.tar.gz", hash = "sha256:8f593023c1a0f916110285b6efd7f99db07d59546e3d8c36fc60e2ab05d3be92"},
 ]
+pytest-dependency = [
+    {file = "pytest-dependency-0.5.1.tar.gz", hash = "sha256:c2a892906192663f85030a6ab91304e508e546cddfe557d692d61ec57a1d946b"},
+]
 pytest-django = [
     {file = "pytest-django-3.10.0.tar.gz", hash = "sha256:4de6dbd077ed8606616958f77655fed0d5e3ee45159475671c7fa67596c6dba6"},
     {file = "pytest_django-3.10.0-py2.py3-none-any.whl", hash = "sha256:c33e3d3da14d8409b125d825d4e74da17bb252191bf6fc3da6856e27a8b73ea4"},
+]
+pytest-django-ordering = [
+    {file = "pytest-django-ordering-1.2.0.tar.gz", hash = "sha256:21764c5c50c533b08a5584c7713c53a9380c7c996026584c410ad514cf287581"},
+    {file = "pytest_django_ordering-1.2.0-py2.py3-none-any.whl", hash = "sha256:1bfaed312d8f4f1cda38840e459287ec7619e9b14d052b060775444641062aad"},
 ]
 python-crontab = [
     {file = "python-crontab-2.5.1.tar.gz", hash = "sha256:4bbe7e720753a132ca4ca9d4094915f40e9d9dc8a807a4564007651018ce8c31"},

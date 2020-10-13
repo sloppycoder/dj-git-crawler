@@ -1,23 +1,22 @@
 from django.db import models
+from django.utils import timezone
 from datetime import datetime
-import enum
 
-
-class RepoStatus(enum.Enum):
-    Ready = "ready"
-    InUse = "in-use"
-    Error = "error"
-    Disabled = "disabled"
+EPOCH_ZERO = timezone.make_aware(datetime.fromtimestamp(0))
 
 
 class ConfigEntry(models.Model):
     name = models.CharField(max_length=32, null=False)
-    ini = models.TextField
+    ini = models.CharField(max_length=4000, null=True)
 
     def __repr__(self):
         return f"""ConfigEntry {self.name}
                 {self.ini}
                 """
+
+    @staticmethod
+    def get(name):
+        return ConfigEntry.objects.filter(name=name).first()
 
 
 class Author(models.Model):
@@ -28,6 +27,9 @@ class Author(models.Model):
     tag3 = models.CharField(max_length=16)
     is_alias = models.BooleanField(default=False)
     original = models.ForeignKey("self", null=True, on_delete=models.PROTECT)
+
+    def __repr__(self):
+        return f"{self.name} <{self.email}>"
 
 
 class Repository(models.Model):
@@ -44,7 +46,7 @@ class Repository(models.Model):
     http_url = models.CharField(max_length=256)
     ssh_url = models.CharField(max_length=256)
     status = models.CharField(max_length=8, choices=REPO_STATUS)
-    last_status_at = models.DateTimeField(default=datetime.fromtimestamp(0))
+    last_status_at = models.DateTimeField(default=EPOCH_ZERO)
     last_error = models.CharField(max_length=256)
 
 

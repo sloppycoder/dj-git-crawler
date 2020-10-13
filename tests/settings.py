@@ -1,4 +1,4 @@
-import os
+import os.path
 from crawler.settings import *
 
 DATABASES = {
