@@ -13,6 +13,7 @@ celery = {version = "~4.4", extras = ["redis"]}
 django-celery-results = "^1.2.1"
 django-celery-beat = "^2.0.0"
 flower = "^0.9.5"
+psycopg2 = "^2.8.6"
 
 [tool.poetry.dev-dependencies]
 black = "20.8b1"
