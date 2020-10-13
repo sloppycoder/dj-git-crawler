@@ -1,5 +1,8 @@
-from django.http import HttpResponse
+from django.http import JsonResponse
+from .models import Author
 
 
 def index(request):
-    return HttpResponse("Hello, world. You're at the polls index.")
+    authors = Author.objects.all()
+    response = {"authors": [{"name": a.name, "email": a.email} for a in authors]}
+    return JsonResponse(response)
