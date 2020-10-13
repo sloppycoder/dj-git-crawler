@@ -1,10 +1,10 @@
 import pytest
-from repos.models import Author
+from stats.models import Author
 
 
 @pytest.mark.django_db
-def test_repos_index(client):
-    response = client.get("/repos/")
+def test_stats_index(client):
+    response = client.get("/stats/")
     assert "authors" in response.json()
 
 

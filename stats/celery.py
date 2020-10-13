@@ -2,7 +2,7 @@ import os
 from celery import Celery
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "crawler.settings")
-app = Celery("repos")
+app = Celery("stats")
 
 # - namespace='CELERY' means all celery-related configuration keys
 #   should have a `CELERY_` prefix.
