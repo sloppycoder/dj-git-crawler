@@ -1,3 +1,8 @@
+import pytest
 from django.test import TestCase
 
-# Create your tests here.
+
+@pytest.mark.django_db
+def test_repos_index(client):
+    response = client.get("/repos/")
+    assert "authors" in response.json()
