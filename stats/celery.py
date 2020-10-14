@@ -50,7 +50,8 @@ def setup_periodic_tasks(sender, **kwargs):
 
     # below are scheduled jobs
     sender.add_periodic_task(
-        crontab(hour="*", minute="1,31", day_of_week="*"), discover_repositories_task.s()
+        crontab(hour="*", minute="1,31", day_of_week="*"),
+        discover_repositories_task.s(),
     )
 
     sender.add_periodic_task(

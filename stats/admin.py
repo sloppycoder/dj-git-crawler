@@ -42,40 +42,54 @@ class ConfigEntryAdmin(admin.ModelAdmin):
 
 
 class AuthorAdmin(admin.ModelAdmin):
-    list_display = ("id", "name", "email", "is_alias", "tag1", "tag2", "tag3", "original")
-    list_filter = ("is_alias", )
+    list_display = (
+        "id",
+        "name",
+        "email",
+        "is_alias",
+        "tag1",
+        "tag2",
+        "tag3",
+        "original",
+    )
+    list_filter = ("is_alias",)
 
     def has_delete_permission(self, request, obj=None):
         return False
 
 
-def disable_action(self, request, queryset):
-    queryset.update(enabled=False)
-    messages.success(request, "Selected repositories disabled")
-
-
-def enable_action(self, request, queryset):
-    queryset.update(enabled=True)
-    messages.success(request, "Selected repositories enabled")
-
-
-def set_ready_action(self, request, queryset):
-    queryset.update(
-        enabled=True,
-        status=Repository.RepoStatus.READY,
-        last_error=None,
-        last_status_at=tz_aware_now(),
-    )
-    messages.success(request, "Selected repositories reset to Ready status")
-
-
 class RepositoryAdmin(admin.ModelAdmin):
-    list_display = ("id", "name", "type", "status", "enabled", "repo_url", "last_status_at")
+    list_display = (
+        "id",
+        "name",
+        "type",
+        "status",
+        "enabled",
+        "repo_url",
+        "last_status_at",
+    )
     list_filter = ("enabled", "status", "type")
     actions = [disable_action, enable_action, set_ready_action]
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+    def disable_action(self, request, queryset):
+        queryset.update(enabled=False)
+        messages.success(request, "Selected repositories disabled")
+
+    def enable_action(self, request, queryset):
+        queryset.update(enabled=True)
+        messages.success(request, "Selected repositories enabled")
+
+    def set_ready_action(self, request, queryset):
+        queryset.update(
+            enabled=True,
+            status=Repository.RepoStatus.READY,
+            last_error=None,
+            last_status_at=tz_aware_now(),
+        )
+        messages.success(request, "Selected repositories reset to Ready status")
 
 
 class CommitAdmin(admin.ModelAdmin):
