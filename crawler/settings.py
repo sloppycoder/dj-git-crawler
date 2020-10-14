@@ -54,8 +54,8 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
         "NAME": "gitcrawler",
-        "USER": os.getenv("PG_USERNAME", "gitcrawler"),
-        "PASSWORD": os.getenv("PG_PASSWORD", "gitcrawler"),
+        "USER": os.getenv("PG_USERNAME"),
+        "PASSWORD": os.getenv("PG_PASSWORD"),
         "HOST": "127.0.0.1",
         "PORT": "5432",
     }

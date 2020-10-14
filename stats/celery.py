@@ -24,6 +24,7 @@ def discover_git_projects_task(self):
     from stats import indexer
     from stats.indexer import register_git_projects
     from stats.models import ConfigEntry
+
     conf = ConfigEntry.get(indexer.DEFAULT_CONFIG)
     register_git_projects(conf)
 

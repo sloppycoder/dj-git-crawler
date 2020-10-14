@@ -10,59 +10,124 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Author',
+            name="Author",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=64)),
-                ('email', models.CharField(max_length=64)),
-                ('tag1', models.CharField(max_length=16)),
-                ('tag2', models.CharField(max_length=16)),
-                ('tag3', models.CharField(max_length=16)),
-                ('is_alias', models.BooleanField(default=False)),
-                ('original', models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, to='stats.Author')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=64)),
+                ("email", models.CharField(max_length=64)),
+                ("tag1", models.CharField(max_length=16)),
+                ("tag2", models.CharField(max_length=16)),
+                ("tag3", models.CharField(max_length=16)),
+                ("is_alias", models.BooleanField(default=False)),
+                (
+                    "original",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        to="stats.Author",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='ConfigEntry',
+            name="ConfigEntry",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=32)),
-                ('ini', models.CharField(max_length=4000, null=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=32)),
+                ("ini", models.CharField(max_length=4000, null=True)),
             ],
         ),
         migrations.CreateModel(
-            name='Repository',
+            name="Repository",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=512, unique=True)),
-                ('type', models.CharField(default='UU', max_length=16)),
-                ('enabled', models.BooleanField(default=True)),
-                ('is_remote', models.BooleanField(default=False)),
-                ('http_url', models.CharField(max_length=256)),
-                ('ssh_url', models.CharField(max_length=256)),
-                ('status', models.CharField(choices=[('ready', 'Ready'), ('inuse', 'In-Use'), ('error', 'Error'), ('disabled', 'Disabled')], max_length=8)),
-                ('last_status_at', models.DateTimeField(default=datetime.datetime(1970, 1, 1, 0, 0, tzinfo=utc))),
-                ('last_error', models.CharField(max_length=256)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=512, unique=True)),
+                ("type", models.CharField(default="UU", max_length=16)),
+                ("enabled", models.BooleanField(default=True)),
+                ("is_remote", models.BooleanField(default=False)),
+                ("http_url", models.CharField(max_length=256)),
+                ("ssh_url", models.CharField(max_length=256)),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("ready", "Ready"),
+                            ("inuse", "In-Use"),
+                            ("error", "Error"),
+                            ("disabled", "Disabled"),
+                        ],
+                        max_length=8,
+                    ),
+                ),
+                (
+                    "last_status_at",
+                    models.DateTimeField(
+                        default=datetime.datetime(1970, 1, 1, 0, 0, tzinfo=utc)
+                    ),
+                ),
+                ("last_error", models.CharField(max_length=256)),
             ],
         ),
         migrations.CreateModel(
-            name='Commit',
+            name="Commit",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('sha', models.CharField(max_length=20)),
-                ('message', models.CharField(max_length=2048)),
-                ('lines_added', models.IntegerField()),
-                ('lines_removed', models.IntegerField()),
-                ('lines_of_code', models.IntegerField()),
-                ('is_merge', models.BooleanField(default=False)),
-                ('created_at', models.DateTimeField()),
-                ('author', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='stats.Author')),
-                ('repo', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='stats.Repository')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("sha", models.CharField(max_length=20)),
+                ("message", models.CharField(max_length=2048)),
+                ("lines_added", models.IntegerField()),
+                ("lines_removed", models.IntegerField()),
+                ("lines_of_code", models.IntegerField()),
+                ("is_merge", models.BooleanField(default=False)),
+                ("created_at", models.DateTimeField()),
+                (
+                    "author",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT, to="stats.Author"
+                    ),
+                ),
+                (
+                    "repo",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        to="stats.Repository",
+                    ),
+                ),
             ],
         ),
     ]
