@@ -41,7 +41,7 @@ def index_all_repositories_task(self):
 
     cut_off = timezone.make_aware(datetime.now() - datetime.timedelta(minutes=5))
     for repo in scan_repositories(cut_off=cut_off):
-        index_repository_task(repo_id=repo.id).delay()
+        index_repository_task().delay(repo_id=repo.id)
 
 
 @app.on_after_finalize.connect
