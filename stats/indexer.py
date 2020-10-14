@@ -110,7 +110,7 @@ def index_repository(repo_id) -> int:
             author = locate_author(name=dev.name, email=dev.email)
             git_commit = Commit(
                 sha=commit.hash,
-                message=commit.msg,
+                message=commit.msg[:2048],  # some commits has super long message
                 author=author,
                 repo=repo,
                 created_at=commit.committer_date,
