@@ -1,18 +1,17 @@
 import pytest
-from pydriller import GitRepository
 
 from stats.indexer import (
-    first_repo,
     locate_author,
     register_git_projects,
     index_repository,
-    commit_count,
 )
-from stats.models import Author
-
-
-def author_count():
-    return Author.objects.count()
+from .utils import (
+    first_repo,
+    commit_count,
+    author_count,
+    repository_count,
+    create_some_commit,
+)
 
 
 @pytest.mark.django_db
@@ -52,9 +51,12 @@ def test_find_author():
 def test_register_git_projects(crawler_conf):
     register_git_projects(crawler_conf)
 
-    local_repo = first_repo(is_remote=False)
-    assert local_repo is not None
+    # we should have 1 local repo and
+    # at least 1 remote repo on gitlab
+    assert repository_count() > 2
 
+    # run the indexing before existing this function when
+    # all the database updates will be rolled back
     run_index_local_repository()
     run_index_remote_repository()
 
@@ -64,24 +66,16 @@ def run_index_local_repository():
     new_commits = index_repository(repo)
     records_in_db = commit_count(repo)
 
-    # print(f"new_commits = {new_commits}, records_in_db = {records_in_db}")
     assert records_in_db == new_commits
-    assert author_count() == 2  # what's the right number?
+    assert author_count() == 2
 
     # create some test commits and only new commits will be indexed
     create_some_commit(repo.name, "d1.txt")
     create_some_commit(repo.name, "d2.asc")
+
     assert index_repository(repo) == 2
 
 
 def run_index_remote_repository():
-    index_repository(first_repo(is_remote=True))
-
-
-def create_some_commit(repo_path: str, file_name: str = "dummy.txt") -> None:
-    repo = GitRepository(repo_path).repo
-    a_file = f"{repo_path}/{file_name}"
-    with open(a_file, "w") as f:
-        f.write("something\n")
-    repo.index.add(a_file)
-    repo.index.commit("some commit")
+    new_commits = index_repository(first_repo(is_remote=True))
+    assert new_commits == 7

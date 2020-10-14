@@ -28,7 +28,7 @@ class Author(models.Model):
     is_alias = models.BooleanField(default=False)
     original = models.ForeignKey("self", null=True, on_delete=models.PROTECT)
 
-    def __repr__(self):
+    def __str__(self):
         return f"{self.name} <{self.email}>"
 
 

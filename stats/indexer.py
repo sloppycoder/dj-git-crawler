@@ -16,18 +16,6 @@ from .utils import should_ignore_path
 DEFAULT_CONFIG = "crawler.ini"
 
 
-def gitlab_api():
-    return Gitlab(settings.GITLAB_URL, private_token=settings.GITLAB_TOKEN)
-
-
-def commit_count(repo):
-    return Commit.objects.filter(repo=repo).count()
-
-
-def first_repo(is_remote):
-    return Repository.objects.filter(is_remote=is_remote).first()
-
-
 def all_hash_for_repo(repo):
     return dict([(c.sha, c.author.id) for c in Commit.objects.filter(repo=repo).all()])
 
@@ -65,7 +53,7 @@ def register_local_repository(path: str, repo_type: str) -> Repository:
 
 
 def register_git_projects(conf: ConfigParser) -> None:
-    gl = gitlab_api()
+    gl = Gitlab(settings.GITLAB_URL, private_token=settings.GITLAB_TOKEN)
     for key in [s for s in conf.sections() if s.find("project.") == 0]:
         section = conf[key]
         group, local_path = section.get("group"), section.get("local_path")
@@ -100,7 +88,7 @@ def locate_author(name: str, email: str, create: bool = True) -> Author:
         if create:
             author = Author(name=name, email=email, is_alias=False)
             author.save()
-            print(f"created new Author {author}")
+            print(f"created new {author}")
         return author
     # recursion to find the top level author
     while True:
