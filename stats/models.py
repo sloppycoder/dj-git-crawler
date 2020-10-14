@@ -1,3 +1,6 @@
+import io
+from configparser import ConfigParser
+
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -17,7 +20,22 @@ class ConfigEntry(models.Model):
 
     @staticmethod
     def get(name):
-        return ConfigEntry.objects.filter(name=name).first()
+        entry = ConfigEntry.objects.filter(name=name).first()
+        if entry is None:
+            return None
+        conf = ConfigParser()
+        conf.read_file(io.StringIO(entry.ini))
+        return conf
+
+    @staticmethod
+    def load(name, ini_file):
+        with open(ini_file, "r") as f:
+            content = "\n".join(f.readlines())
+        entry = ConfigEntry.objects.filter(name=name).first()
+        entry = entry or ConfigEntry(name=name)
+        entry.ini = content
+        entry.save()
+        return entry
 
 
 class Author(models.Model):
@@ -59,7 +77,7 @@ class Repository(models.Model):
 
 
 class Commit(models.Model):
-    sha = models.CharField(max_length=20)
+    sha = models.CharField(max_length=40)
     message = models.CharField(max_length=2048)
     lines_added = models.IntegerField()
     lines_removed = models.IntegerField()
