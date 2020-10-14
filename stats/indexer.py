@@ -151,7 +151,9 @@ def scan_repositories(status=Repository.RepoStatus.READY, cut_off=None):
     # by default set cut_off time to 15 mins before
     cut_off = cut_off or timezone.make_aware(datetime.now() - timedelta(minutes=15))
     count = 0
-    for repo in Repository.objects.filter(status=status, last_status_at__lt=cut_off):
+    for repo in Repository.objects.filter(
+        status=status, last_status_at__lt=cut_off, enabled=True
+    ):
         count += 1
         yield repo
     print(f"scanned {count} repositories")

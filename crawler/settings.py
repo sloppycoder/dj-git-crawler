@@ -9,7 +9,6 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
-    "stats.apps.StatsConfig",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -18,6 +17,10 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django_celery_results",
     "django_celery_beat",
+    # leave my app last, since I want to remove the
+    # models from above modules when I initialize my
+    # admin site
+    "stats.apps.StatsConfig",
 ]
 
 MIDDLEWARE = [

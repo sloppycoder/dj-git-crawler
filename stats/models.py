@@ -10,13 +10,20 @@ EPOCH_ZERO = timezone.make_aware(datetime.fromtimestamp(0))
 
 
 class ConfigEntry(models.Model):
+    class Meta:
+        verbose_name = "Config Entry"
+        verbose_name_plural = "Config Entries"
+
     name = models.CharField(max_length=32)
-    ini = models.CharField(max_length=4000, null=True)
+    ini = models.TextField(null=True)
 
     def __repr__(self):
         return f"""ConfigEntry {self.name}
                 {self.ini}
                 """
+
+    def __str__(self):
+        return f"ConfigEntry [{self.name}]"
 
     @staticmethod
     def get(name):
@@ -41,9 +48,9 @@ class ConfigEntry(models.Model):
 class Author(models.Model):
     name = models.CharField(max_length=64)
     email = models.CharField(max_length=64)
-    tag1 = models.CharField(max_length=16)
-    tag2 = models.CharField(max_length=16)
-    tag3 = models.CharField(max_length=16)
+    tag1 = models.CharField(max_length=16, null=True, blank=True)
+    tag2 = models.CharField(max_length=16, null=True, blank=True)
+    tag3 = models.CharField(max_length=16, null=True, blank=True)
     is_alias = models.BooleanField(default=False)
     original = models.ForeignKey("self", null=True, on_delete=models.PROTECT)
 
@@ -52,14 +59,16 @@ class Author(models.Model):
 
 
 class Repository(models.Model):
+    class Meta:
+        verbose_name_plural = "Repositories"
+
     class RepoStatus(models.TextChoices):
         READY = "Ready", _("Ready")
         INUSE = "InUse", _("InUse")
         ERROR = "Error", _("Error")
-        DISABLED = "Disabled", _("Disabled")
 
     name = models.CharField(max_length=512, unique=True)
-    type = models.CharField(max_length=16, null=True)
+    type = models.CharField(max_length=16, null=True, blank=True)
     enabled = models.BooleanField(default=True)
     is_remote = models.BooleanField(default=False)
     repo_url = models.CharField(max_length=512, null=True)
@@ -67,7 +76,7 @@ class Repository(models.Model):
         max_length=8, choices=RepoStatus.choices, default=RepoStatus.READY
     )
     last_status_at = models.DateTimeField(default=EPOCH_ZERO)
-    last_error = models.CharField(max_length=2000, null=True)
+    last_error = models.TextField(null=True, blank=True)
 
     def set_status(self, status, errmsg=None):
         self.status = status
