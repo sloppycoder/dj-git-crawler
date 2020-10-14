@@ -1,0 +1,1 @@
+cat scripts/first_run.py | python manage.py shell
