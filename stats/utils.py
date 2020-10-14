@@ -7,6 +7,8 @@ IGNORE_PATTERNS = [
     re.compile(".*\\.jar$"),
 ]
 
+GIT_REPO_PATTERN = re.compile("^(http://|https://|ssh://|git@).*.\\.git$")
+
 
 def should_ignore_path(path: str) -> bool:
     """
@@ -17,3 +19,7 @@ def should_ignore_path(path: str) -> bool:
         if regex.match(path):
             return True
     return False
+
+
+def is_remote_git_url(path) -> bool:
+    return True if GIT_REPO_PATTERN.match(path) else False
