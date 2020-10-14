@@ -45,8 +45,12 @@ def index_all_repositories_task(self):
 
 @app.on_after_finalize.connect
 def setup_periodic_tasks(sender, **kwargs):
+    # execute this shortly after the application starts
+    discover_repositories_task.apply_async(countdown=30)
+
+    # below are scheduled jobs
     sender.add_periodic_task(
-        crontab(hour="*", minute="*/5", day_of_week="*"), discover_repositories_task.s()
+        crontab(hour="*", minute="1,31", day_of_week="*"), discover_repositories_task.s()
     )
 
     sender.add_periodic_task(
