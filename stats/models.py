@@ -67,7 +67,7 @@ class Repository(models.Model):
         max_length=8, choices=RepoStatus.choices, default=RepoStatus.READY
     )
     last_status_at = models.DateTimeField(default=EPOCH_ZERO)
-    last_error = models.CharField(max_length=256, null=True)
+    last_error = models.CharField(max_length=2000, null=True)
 
     def set_status(self, status, errmsg=None):
         self.status = status

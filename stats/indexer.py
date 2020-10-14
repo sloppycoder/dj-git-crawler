@@ -1,4 +1,5 @@
 import glob
+import traceback
 from configparser import ConfigParser
 from datetime import datetime, timedelta
 from os.path import expanduser
@@ -121,7 +122,8 @@ def index_repository(repo_id) -> int:
         print(f"Indexed repository {repo.name}")
     except Exception as e:
         print(f"Exception indexing repository {repo.name} => {e}")
-        repo.set_status(status=repo.RepoStatus.ERROR, errmsg=str(e))
+        exc = traceback.format_exc()
+        repo.set_status(status=repo.RepoStatus.ERROR, errmsg=exc)
 
     return count
 
