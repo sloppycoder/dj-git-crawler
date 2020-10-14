@@ -5,7 +5,7 @@ from os.path import expanduser
 
 from django.conf import settings
 from django.utils import timezone
-from git import InvalidGitRepositoryError
+from git import InvalidGitRepositoryError, GitCommandError
 from gitlab import Gitlab, GitlabGetError
 from pydriller import GitRepository, RepositoryMining
 
@@ -25,9 +25,9 @@ def register_repository(name, repo_url, repo_type="UNKNOWN") -> Repository:
         repo = Repository(
             name=name, is_remote=is_remote_git_url(repo_url), repo_url=repo_url
         )
+        print(f"registering new repo {name} => {name}")
     repo.type = repo_type
     repo.save()
-    print(f"registered remote repo {name} => {name}")
     return repo
 
 
@@ -65,10 +65,12 @@ def register_git_repositories(conf: ConfigParser = None) -> None:
                         register_repository(
                             name=repo_name, repo_url=path, repo_type=project_type
                         )
-                except InvalidGitRepositoryError:
+                except (InvalidGitRepositoryError, GitCommandError):
                     print(f"skipping non Git path {path}")
-                except Exception:
-                    print(f"skipping invalid repository path {path}")
+                except Exception as e:
+                    print(
+                        f"got exception when trying to open git repository at {path} => {e}"
+                    )
 
 
 def locate_author(name: str, email: str, create: bool = True) -> Author:
