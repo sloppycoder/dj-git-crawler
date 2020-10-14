@@ -1,3 +1,4 @@
+import os
 import pytest
 
 from stats.indexer import (
@@ -5,7 +6,9 @@ from stats.indexer import (
     locate_author,
     register_git_repositories,
     scan_repositories,
+    DEFAULT_CONFIG,
 )
+from stats.models import ConfigEntry
 
 from .utils import (
     author_count,
@@ -90,3 +93,16 @@ def run_index_remote_repository():
     repo = first_repo(is_remote=True)
     new_commits = index_repository(repo.id)
     assert new_commits == 7
+
+
+@pytest.mark.django_db
+def test_index_all():
+    """
+    run full index use crawler.ini instead of test.ini
+    for troubleshooting problems at run time
+    """
+    if os.getenv("RUN_RUN_RUN") == "run":
+        ConfigEntry.load(DEFAULT_CONFIG, "crawler/crawler.ini")
+        register_git_repositories()
+        for repo in scan_repositories():
+            index_repository(repo.id)
