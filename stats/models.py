@@ -1,12 +1,13 @@
 from django.db import models
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 from datetime import datetime
 
 EPOCH_ZERO = timezone.make_aware(datetime.fromtimestamp(0))
 
 
 class ConfigEntry(models.Model):
-    name = models.CharField(max_length=32, null=False)
+    name = models.CharField(max_length=32)
     ini = models.CharField(max_length=4000, null=True)
 
     def __repr__(self):
@@ -20,8 +21,8 @@ class ConfigEntry(models.Model):
 
 
 class Author(models.Model):
-    name = models.CharField(max_length=64, null=False)
-    email = models.CharField(max_length=64, null=False)
+    name = models.CharField(max_length=64)
+    email = models.CharField(max_length=64)
     tag1 = models.CharField(max_length=16)
     tag2 = models.CharField(max_length=16)
     tag3 = models.CharField(max_length=16)
@@ -33,25 +34,32 @@ class Author(models.Model):
 
 
 class Repository(models.Model):
-    REPO_STATUS = (
-        ("ready", "Ready"),
-        ("inuse", "In-Use"),
-        ("error", "Error"),
-        ("disabled", "Disabled"),
-    )
-    name = models.CharField(max_length=512, null=False, unique=True)
-    type = models.CharField(max_length=16, null=False, default="UU")
+    class RepoStatus(models.TextChoices):
+        READY = "Ready", _("Ready")
+        INUSE = "InUse", _("InUse")
+        ERROR = "Error", _("Error")
+        DISABLED = "Disabled", _("Disabled")
+
+    name = models.CharField(max_length=512, unique=True)
+    type = models.CharField(max_length=16, null=True)
     enabled = models.BooleanField(default=True)
     is_remote = models.BooleanField(default=False)
-    http_url = models.CharField(max_length=256)
-    ssh_url = models.CharField(max_length=256)
-    status = models.CharField(max_length=8, choices=REPO_STATUS)
+    repo_url = models.CharField(max_length=512, null=True)
+    status = models.CharField(
+        max_length=8, choices=RepoStatus.choices, default=RepoStatus.READY
+    )
     last_status_at = models.DateTimeField(default=EPOCH_ZERO)
-    last_error = models.CharField(max_length=256)
+    last_error = models.CharField(max_length=256, null=True)
+
+    def set_status(self, status, errmsg=None):
+        self.status = status
+        self.last_status_at = timezone.make_aware(datetime.now())
+        self.last_error = errmsg
+        self.save()
 
 
 class Commit(models.Model):
-    sha = models.CharField(max_length=20, null=False)
+    sha = models.CharField(max_length=20)
     message = models.CharField(max_length=2048)
     lines_added = models.IntegerField()
     lines_removed = models.IntegerField()

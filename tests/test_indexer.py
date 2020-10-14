@@ -1,16 +1,18 @@
 import pytest
 
 from stats.indexer import (
-    locate_author,
-    register_git_projects,
     index_repository,
+    locate_author,
+    register_git_repositories,
+    scan_repositories,
 )
+
 from .utils import (
-    first_repo,
-    commit_count,
     author_count,
-    repository_count,
     create_some_commit,
+    commit_count,
+    first_repo,
+    repository_count,
 )
 
 
@@ -47,9 +49,8 @@ def test_find_author():
 
 
 @pytest.mark.django_db
-@pytest.mark.dependency()
-def test_register_git_projects(crawler_conf):
-    register_git_projects(crawler_conf)
+def test_register_git_repositories(crawler_conf):
+    register_git_repositories(crawler_conf)
 
     # we should have 1 local repo and
     # at least 1 remote repo on gitlab
@@ -57,25 +58,35 @@ def test_register_git_projects(crawler_conf):
 
     # run the indexing before existing this function when
     # all the database updates will be rolled back
+    run_scan_repositories()
     run_index_local_repository()
     run_index_remote_repository()
 
 
+def run_scan_repositories():
+    count = 0
+    for repo in scan_repositories():
+        print(f"{repo.name} => {repo.repo_url}")
+        count += 1
+    assert count == 3
+
+
 def run_index_local_repository():
     repo = first_repo(is_remote=False)
-    new_commits = index_repository(repo)
+    new_commits = index_repository(repo.id)
     records_in_db = commit_count(repo)
 
     assert records_in_db == new_commits
     assert author_count() == 2
 
     # create some test commits and only new commits will be indexed
-    create_some_commit(repo.name, "d1.txt")
-    create_some_commit(repo.name, "d2.asc")
+    create_some_commit(repo.repo_url, "d1.txt")
+    create_some_commit(repo.repo_url, "d2.asc")
 
-    assert index_repository(repo) == 2
+    assert index_repository(repo.id) == 2
 
 
 def run_index_remote_repository():
-    new_commits = index_repository(first_repo(is_remote=True))
+    repo = first_repo(is_remote=True)
+    new_commits = index_repository(repo.id)
     assert new_commits == 7
