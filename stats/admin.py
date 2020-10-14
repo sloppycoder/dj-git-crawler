@@ -69,7 +69,7 @@ class RepositoryAdmin(admin.ModelAdmin):
         "last_status_at",
     )
     list_filter = ("enabled", "status", "type")
-    actions = [disable_action, enable_action, set_ready_action]
+    actions = ['disable_action', 'enable_action', 'set_ready_action']
 
     def has_delete_permission(self, request, obj=None):
         return False
