@@ -21,7 +21,6 @@ PyDriller = "^1.15.2"
 black = "20.8b1"
 flake8 = "^3.8.4"
 pytest-django = "^3.10.0"
-pytest-dependency = "^0.5.1"
 pytest-django-ordering = "^1.2.0"
 
 [build-system]
