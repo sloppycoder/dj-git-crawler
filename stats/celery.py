@@ -29,8 +29,7 @@ def index_repository_task(self, **kwargs):
     # get an "Apps aren't loaded yet" error
     from stats.indexer import index_repository
 
-    repo_id = kwargs["repo_id"]
-    index_repository(repo_id)
+    return index_repository(kwargs["repo_id"])
 
 
 @app.task(bind=True)
@@ -41,16 +40,16 @@ def index_all_repositories_task(self):
 
     cut_off = timezone.make_aware(datetime.now() - timedelta(minutes=5))
     for repo in scan_repositories(cut_off=cut_off):
-        index_repository_task().delay(repo_id=repo.id)
+        index_repository_task.delay(repo_id=repo.id)
 
 
 @app.on_after_finalize.connect
 def setup_periodic_tasks(sender, **kwargs):
     sender.add_periodic_task(
-        crontab(hour="*", minute="*/2", day_of_week="*"), discover_repositories_task.s()
+        crontab(hour="*", minute="*/5", day_of_week="*"), discover_repositories_task.s()
     )
 
     sender.add_periodic_task(
-        crontab(hour="*", minute="*/10", day_of_week="*"),
+        crontab(hour="*", minute="*/15", day_of_week="*"),
         index_all_repositories_task.s(),
     )
