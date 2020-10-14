@@ -70,8 +70,8 @@ def set_ready_action(self, request, queryset):
 
 
 class RepositoryAdmin(admin.ModelAdmin):
-    list_display = ("id", "name", "status", "enabled", "repo_url", "last_status_at")
-    list_filter = ("enabled", "status")
+    list_display = ("id", "name", "type", "status", "enabled", "repo_url", "last_status_at")
+    list_filter = ("enabled", "status", "type")
     actions = [disable_action, enable_action, set_ready_action]
 
     def has_delete_permission(self, request, obj=None):
