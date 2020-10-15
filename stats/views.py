@@ -28,10 +28,11 @@ def scan(request):
     else:
         return HttpResponse("Unauthorized", status=401)
 
+
 def stat(request):
     code = request.GET.get("code", "")
     if code == "s3cr3t":
-        gather_author_stats_task.delay()
+        gather_author_stats_task.delay([])
         return JsonResponse({"status": "Submitted"})
     else:
         return HttpResponse("Unauthorized", status=401)
