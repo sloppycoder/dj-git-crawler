@@ -8,6 +8,30 @@ SECRET_KEY = os.getenv("DJANGO_SECRET")
 DEBUG = os.getenv("DEBUG_MODE") == "1" or False
 ALLOWED_HOSTS = ["gf63", "192.168.20.71", "localhost", "127.0.0.1"]
 
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "WARNING",
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
+            "propagate": False,
+        },
+        "django.db.backends": {
+            "level": os.getenv("DJANGO_LOG_SQL", "INFO"),
+        },
+    },
+}
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
