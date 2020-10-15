@@ -1,13 +1,14 @@
+from datetime import datetime, timedelta
 from django.contrib import admin
 from django.contrib import messages
 from django.forms import TextInput
 from django.db import models
 from .models import Author, ConfigEntry, Repository, Commit
-from .utils import tz_aware_now
 
 
 #
-# TODO: replace the manual unregister with some custom admin site
+# Hack: unregister models from other installed apps
+# will replace the manual unregister with some custom admin site
 #
 
 # unregister django-celery-results models
@@ -37,6 +38,10 @@ admin.site.unregister(IntervalSchedule)
 admin.site.unregister(PeriodicTask)
 admin.site.unregister(SolarSchedule)
 
+#
+# End of unregister other models hack
+#
+
 
 @admin.register(ConfigEntry)
 class ConfigEntryAdmin(admin.ModelAdmin):
@@ -47,16 +52,17 @@ class ConfigEntryAdmin(admin.ModelAdmin):
 @admin.register(Author)
 class AuthorAdmin(admin.ModelAdmin):
     list_display = (
-        "id",
         "name",
         "email",
         "is_alias",
         "tag1",
         "tag2",
         "tag3",
+        "stats",
         "original",
     )
     list_filter = ("is_alias",)
+    list_display_links = ("name",)
     search_fields = ["name", "email"]
     list_editable = ["tag1", "tag2", "tag3"]
     formfield_overrides = {
@@ -65,6 +71,38 @@ class AuthorAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+
+class LastCommitDateListFilter(admin.SimpleListFilter):
+    title = "Last Commit"
+
+    # Parameter for the filter that will be used in the URL query.
+    parameter_name = "last_commit"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("mark1", "last 3 days"),
+            ("mark2", "last 7 days"),
+            ("mark3", "last 30 days"),
+            ("mark4", "last 365 days"),
+            ("mark5", "it's been a while"),
+        )
+
+    def queryset(self, request, queryset):
+        mark1 = datetime.now().astimezone() - timedelta(days=3)
+        mark2 = datetime.now().astimezone() - timedelta(days=7)
+        mark3 = datetime.now().astimezone() - timedelta(days=30)
+        mark4 = datetime.now().astimezone() - timedelta(days=365)
+        if self.value() == "mark1":
+            return queryset.filter(last_commit_at__gt=mark1)
+        if self.value() == "mark2":
+            return queryset.filter(last_commit_at__gt=mark2)
+        if self.value() == "mark3":
+            return queryset.filter(last_commit_at__gt=mark3)
+        if self.value() == "mark4":
+            return queryset.filter(last_commit_at__gt=mark4)
+        if self.value() == "mark5":
+            return queryset.all()
 
 
 @admin.register(Repository)
@@ -78,7 +116,7 @@ class RepositoryAdmin(admin.ModelAdmin):
         "repo_url",
         "last_commit_at",
     )
-    list_filter = ("enabled", "status", "type", "is_remote")
+    list_filter = ("enabled", "status", "type", "is_remote", LastCommitDateListFilter)
     search_fields = ["name"]
     actions = ["disable_action", "enable_action", "set_ready_action"]
     # the settings below controls inline editing of "type" field
@@ -95,24 +133,29 @@ class RepositoryAdmin(admin.ModelAdmin):
         queryset.update(enabled=False)
         messages.success(request, "Selected repositories disabled")
 
+    disable_action.short_description = "Disable indexing on selected repositories"
+
     def enable_action(self, request, queryset):
         queryset.update(enabled=True)
         messages.success(request, "Selected repositories enabled")
+
+    enable_action.short_description = "Enable indexing selected repositories"
 
     def set_ready_action(self, request, queryset):
         queryset.update(
             enabled=True,
             status=Repository.RepoStatus.READY,
             last_error=None,
-            last_status_at=tz_aware_now(),
+            last_status_at=datetime.now().astimezone(),
         )
         messages.success(request, "Selected repositories reset to Ready status")
+
+    set_ready_action.short_description = "Reset selected repositories status to Ready"
 
 
 @admin.register(Commit)
 class CommitAdmin(admin.ModelAdmin):
     list_display = (
-        "repo",
         "sha",
         "message",
         "lines_added",
