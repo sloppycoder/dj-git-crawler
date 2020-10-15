@@ -1,5 +1,7 @@
 from django.contrib import admin
 from django.contrib import messages
+from django.forms import TextInput
+from django.db import models
 from .models import Author, ConfigEntry, Repository, Commit
 from .utils import tz_aware_now
 
@@ -36,11 +38,13 @@ admin.site.unregister(PeriodicTask)
 admin.site.unregister(SolarSchedule)
 
 
+@admin.register(ConfigEntry)
 class ConfigEntryAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return False
 
 
+@admin.register(Author)
 class AuthorAdmin(admin.ModelAdmin):
     list_display = (
         "id",
@@ -53,11 +57,17 @@ class AuthorAdmin(admin.ModelAdmin):
         "original",
     )
     list_filter = ("is_alias",)
+    search_fields = ["name", "email"]
+    list_editable = ["tag1", "tag2", "tag3"]
+    formfield_overrides = {
+        models.CharField: {"widget": TextInput(attrs={"size": "10"})},
+    }
 
     def has_delete_permission(self, request, obj=None):
         return False
 
 
+@admin.register(Repository)
 class RepositoryAdmin(admin.ModelAdmin):
     list_display = (
         "id",
@@ -69,7 +79,14 @@ class RepositoryAdmin(admin.ModelAdmin):
         "last_status_at",
     )
     list_filter = ("enabled", "status", "type", "is_remote")
-    actions = ['disable_action', 'enable_action', 'set_ready_action']
+    search_fields = ["name"]
+    actions = ["disable_action", "enable_action", "set_ready_action"]
+    # the settings below controls inline editing of "type" field
+    list_editable = ["type"]
+    save_on_top = True
+    formfield_overrides = {
+        models.CharField: {"widget": TextInput(attrs={"size": "10"})},
+    }
 
     def has_delete_permission(self, request, obj=None):
         return False
@@ -92,17 +109,20 @@ class RepositoryAdmin(admin.ModelAdmin):
         messages.success(request, "Selected repositories reset to Ready status")
 
 
+@admin.register(Commit)
 class CommitAdmin(admin.ModelAdmin):
-    list_display = ("sha", "message", "lines_added", "lines_removed", "is_merge")
+    list_display = (
+        "repo",
+        "sha",
+        "message",
+        "lines_added",
+        "lines_removed",
+        "is_merge",
+    )
+    list_display_links = ("sha",)
 
     def has_delete_permission(self, request, obj=None):
         return False
 
     def has_change_permission(self, request, obj=None):
         return False
-
-
-admin.site.register(ConfigEntry, ConfigEntryAdmin)
-admin.site.register(Author, AuthorAdmin)
-admin.site.register(Repository, RepositoryAdmin)
-admin.site.register(Commit, CommitAdmin)
