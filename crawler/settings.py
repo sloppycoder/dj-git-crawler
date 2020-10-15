@@ -5,7 +5,7 @@ load_dotenv()
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.getenv("DJANGO_SECRET")
-DEBUG = True
+DEBUG = os.getenv("DEBUG_MODE") == "1" or False
 ALLOWED_HOSTS = ["gf63", "192.168.20.71", "localhost", "127.0.0.1"]
 
 INSTALLED_APPS = [
