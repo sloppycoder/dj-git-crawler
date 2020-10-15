@@ -1,6 +1,6 @@
 from django.http import JsonResponse, HttpResponse
 from .models import Author
-from .celery import discover_repositories_task, index_all_repositories_task
+from .celery import discover_repositories_task, index_all_repositories_task, gather_author_stats_task
 
 
 def index(request):
@@ -27,3 +27,12 @@ def scan(request):
         return JsonResponse({"status": "Submitted"})
     else:
         return HttpResponse("Unauthorized", status=401)
+
+def stat(request):
+    code = request.GET.get("code", "")
+    if code == "s3cr3t":
+        gather_author_stats_task.delay()
+        return JsonResponse({"status": "Submitted"})
+    else:
+        return HttpResponse("Unauthorized", status=401)
+
