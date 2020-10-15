@@ -76,7 +76,7 @@ class RepositoryAdmin(admin.ModelAdmin):
         "status",
         "enabled",
         "repo_url",
-        "last_status_at",
+        "last_commit_at",
     )
     list_filter = ("enabled", "status", "type", "is_remote")
     search_fields = ["name"]

@@ -2,11 +2,9 @@ import io
 from configparser import ConfigParser
 
 from django.db import models
-from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
-from datetime import datetime
+from datetime import datetime, timezone
 
-EPOCH_ZERO = timezone.make_aware(datetime.fromtimestamp(0))
+EPOCH_ZERO = datetime(1970, 1, 1, tzinfo=timezone.utc)
 
 
 class ConfigEntry(models.Model):
@@ -63,9 +61,9 @@ class Repository(models.Model):
         verbose_name_plural = "Repositories"
 
     class RepoStatus(models.TextChoices):
-        READY = "Ready", _("Ready")
-        INUSE = "InUse", _("InUse")
-        ERROR = "Error", _("Error")
+        READY = "Ready"
+        INUSE = "InUse"
+        ERROR = "Error"
 
     name = models.CharField(max_length=512, unique=True)
     type = models.CharField(max_length=16, null=True, blank=True)
@@ -77,11 +75,14 @@ class Repository(models.Model):
     )
     last_status_at = models.DateTimeField(default=EPOCH_ZERO)
     last_error = models.TextField(null=True, blank=True)
+    last_commit_at = models.DateTimeField(default=EPOCH_ZERO)
 
-    def set_status(self, status, errmsg=None):
+    def set_status(self, status, errmsg=None, last_commit_dt=None):
         self.status = status
-        self.last_status_at = timezone.make_aware(datetime.now())
+        self.last_status_at = datetime.now().astimezone()
         self.last_error = errmsg
+        if last_commit_dt is not None:
+            self.last_commit_at = last_commit_dt
         self.save()
 
 

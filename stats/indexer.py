@@ -5,12 +5,11 @@ from datetime import datetime, timedelta
 from os.path import expanduser
 
 from django.conf import settings
-from django.utils import timezone
 from git import InvalidGitRepositoryError, GitCommandError
 from gitlab import Gitlab, GitlabGetError
 from pydriller import GitRepository, RepositoryMining
 
-from .models import Author, Repository, Commit, ConfigEntry
+from .models import Author, Repository, Commit, ConfigEntry, EPOCH_ZERO
 from .utils import should_ignore_path, is_remote_git_url
 
 DEFAULT_CONFIG = "crawler.ini"
@@ -101,10 +100,16 @@ def index_repository(repo_id) -> int:
     count = 0
     try:
         old_commits = all_hash_for_repo(repo)
+        last_commit_dt = EPOCH_ZERO
 
         for commit in RepositoryMining(repo.repo_url).traverse_commits():
             if commit.hash in old_commits:
                 continue
+
+            commit_dt = commit.committer_date
+            if commit_dt > last_commit_dt:
+                last_commit_dt = commit_dt
+                # print(f"Updating last_commit_dt to {last_commit_dt}")
 
             dev = commit.committer
             author = locate_author(name=dev.name, email=dev.email)
@@ -118,10 +123,11 @@ def index_repository(repo_id) -> int:
             update_commit_stats(git_commit, commit.modifications)
             git_commit.save()
             count += 1
-        repo.set_status(status=repo.RepoStatus.READY)
+        repo.set_status(status=repo.RepoStatus.READY, last_commit_dt=last_commit_dt)
         print(f"Indexed repository {repo.name}")
+    # TODO: need to narrow this down
     except Exception as e:
-        print(f"Exception indexing repository {repo.name} => {e}")
+        print(f"Exception indexing repository {repo.name} => {str(e)}\n{e}")
         exc = traceback.format_exc()
         repo.set_status(status=repo.RepoStatus.ERROR, errmsg=exc)
 
@@ -149,7 +155,7 @@ def update_commit_stats(git_commit, modifications):
 
 def scan_repositories(status=Repository.RepoStatus.READY, cut_off=None):
     # by default set cut_off time to 15 mins before
-    cut_off = cut_off or timezone.make_aware(datetime.now() - timedelta(minutes=15))
+    cut_off = cut_off or datetime.now().astimezone() - timedelta(minutes=15)
     count = 0
     for repo in Repository.objects.filter(
         status=status, last_status_at__lt=cut_off, enabled=True
