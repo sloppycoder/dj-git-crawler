@@ -21,7 +21,7 @@ from (
          from stats_commit,
               stats_author
          where stats_commit.author_id = stats_author.id
-         gro
+         group by stats_id
      ) c
 where c.stats_id = stats_authorstat.id
 
