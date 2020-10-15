@@ -35,7 +35,7 @@ class ConfigEntry(models.Model):
     @staticmethod
     def load(name, ini_file):
         with open(ini_file, "r") as f:
-            content = "\n".join(f.readlines())
+            content = "".join(f.readlines())
         entry = ConfigEntry.objects.filter(name=name).first()
         entry = entry or ConfigEntry(name=name)
         entry.ini = content
