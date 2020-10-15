@@ -1,8 +1,5 @@
 import re
 
-from datetime import datetime
-from django.utils import timezone
-
 
 # files matches any of the regex will not be counted
 # towards commit stats
@@ -27,7 +24,3 @@ def should_ignore_path(path: str) -> bool:
 
 def is_remote_git_url(path) -> bool:
     return True if GIT_REPO_PATTERN.match(path) else False
-
-
-def tz_aware_now() -> timezone:
-    return timezone.make_aware(datetime.now())

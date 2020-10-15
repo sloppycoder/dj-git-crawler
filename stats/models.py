@@ -43,6 +43,16 @@ class ConfigEntry(models.Model):
         return entry
 
 
+# this model is intended to be readonly from Django
+# the updates will be done directly by using SQL
+class AuthorStat(models.Model):
+    lines_added = models.IntegerField(default=0)
+    lines_removed = models.IntegerField(default=0)
+    commit_count = models.IntegerField(default=0)
+    merge_commit_count = models.IntegerField(default=0)
+    last_status_at = models.DateTimeField(default=EPOCH_ZERO)
+
+
 class Author(models.Model):
     name = models.CharField(max_length=64)
     email = models.CharField(max_length=64)
@@ -51,6 +61,7 @@ class Author(models.Model):
     tag3 = models.CharField(max_length=16, null=True, blank=True)
     is_alias = models.BooleanField(default=False)
     original = models.ForeignKey("self", null=True, on_delete=models.PROTECT)
+    stats = models.OneToOneField(AuthorStat, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.name} <{self.email}>"

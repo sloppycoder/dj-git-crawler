@@ -9,7 +9,7 @@ from git import InvalidGitRepositoryError, GitCommandError
 from gitlab import Gitlab, GitlabGetError
 from pydriller import GitRepository, RepositoryMining
 
-from .models import Author, Repository, Commit, ConfigEntry, EPOCH_ZERO
+from .models import Author, AuthorStat, Repository, Commit, ConfigEntry, EPOCH_ZERO
 from .utils import should_ignore_path, is_remote_git_url
 
 DEFAULT_CONFIG = "crawler.ini"
@@ -79,7 +79,9 @@ def locate_author(name: str, email: str, create: bool = True) -> Author:
     # create new author if email does not exist
     if author is None:
         if create:
-            author = Author(name=name, email=email, is_alias=False)
+            stats = AuthorStat()
+            stats.save()
+            author = Author(name=name, email=email, is_alias=False, stats=stats)
             author.save()
             print(f"created new {author}")
         return author
