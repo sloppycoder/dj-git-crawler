@@ -43,6 +43,22 @@ class ConfigEntry(models.Model):
         return entry
 
 
+class AuthorAndStat(models.Model):
+    name = models.CharField(max_length=64)
+    email = models.CharField(max_length=64)
+    tag1 = models.CharField(max_length=16)
+    tag2 = models.CharField(max_length=16)
+    tag3 = models.CharField(max_length=16)
+    lines_added = models.IntegerField()
+    lines_removed = models.IntegerField()
+    commit_count = models.IntegerField()
+    merge_commit_count = models.IntegerField()
+
+    class Meta:
+        managed = False
+        db_table = "stats_author_stats_view"
+        ordering = ["-commit_count"]
+
 # this model is intended to be readonly from Django
 # the updates will be done directly by using SQL
 class AuthorStat(models.Model):

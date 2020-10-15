@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.forms import TextInput
 from django.utils.html import format_html
 from django.db import models
-from .models import Author, AuthorStat, ConfigEntry, Repository, Commit
+from .models import Author, AuthorStat, AuthorAndStat, ConfigEntry, Repository, Commit
 
 
 #
@@ -49,6 +49,9 @@ class ConfigEntryAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return False
 
+    def has_add_permission(self, request):
+        return False
+
 
 @admin.register(Author)
 class AuthorAdmin(admin.ModelAdmin):
@@ -58,15 +61,10 @@ class AuthorAdmin(admin.ModelAdmin):
         "tag1",
         "tag2",
         "tag3",
-        "lines_added",
-        "lines_removed",
-        "commits",
-        "merges",
         "is_alias",
     )
     list_filter = ("is_alias",)
     list_display_links = ("name",)
-    list_select_related = ("stats",)
     search_fields = ["name", "email"]
     list_editable = ["tag1", "tag2", "tag3"]
     formfield_overrides = {
@@ -76,17 +74,32 @@ class AuthorAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return False
 
-    def lines_added(self, obj):
-        return obj.stats.lines_added
 
-    def lines_removed(self, obj):
-        return obj.stats.lines_added
+@admin.register(AuthorAndStat)
+class AuthorAndStatAdmin(admin.ModelAdmin):
+    class Meta:
+        get_latest_by = "-commit_count"
 
-    def commits(self, obj):
-        return obj.stats.commit_count
+    list_display = (
+        "name",
+        "email",
+        "tag1",
+        "tag2",
+        "tag3",
+        "lines_added",
+        "lines_removed",
+        "commit_count",
+        "merge_commit_count",
+    )
 
-    def merges(self, obj):
-        return obj.stats.commit_count
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_add_permission(self, request):
+        return False
 
 
 class LastCommitDateListFilter(admin.SimpleListFilter):
@@ -203,6 +216,9 @@ class CommitAdmin(admin.ModelAdmin):
         return False
 
     def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_add_permission(self, request):
         return False
 
     def show_sha_url(self, obj):
