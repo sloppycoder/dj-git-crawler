@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.forms import TextInput
 from django.utils.html import format_html
 from django.db import models
-from .models import Author, ConfigEntry, Repository, Commit
+from .models import Author, AuthorStat, ConfigEntry, Repository, Commit
 
 
 #
@@ -55,15 +55,18 @@ class AuthorAdmin(admin.ModelAdmin):
     list_display = (
         "name",
         "email",
-        "is_alias",
         "tag1",
         "tag2",
         "tag3",
-        "stats",
-        "original",
+        "lines_added",
+        "lines_removed",
+        "commits",
+        "merges",
+        "is_alias",
     )
     list_filter = ("is_alias",)
     list_display_links = ("name",)
+    list_select_related = ("stats",)
     search_fields = ["name", "email"]
     list_editable = ["tag1", "tag2", "tag3"]
     formfield_overrides = {
@@ -72,6 +75,18 @@ class AuthorAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+    def lines_added(self, obj):
+        return obj.stats.lines_added
+
+    def lines_removed(self, obj):
+        return obj.stats.lines_added
+
+    def commits(self, obj):
+        return obj.stats.commit_count
+
+    def merges(self, obj):
+        return obj.stats.commit_count
 
 
 class LastCommitDateListFilter(admin.SimpleListFilter):
@@ -175,16 +190,31 @@ class CommitAdmin(admin.ModelAdmin):
         get_latest_by = "-created_at"
 
     list_display = (
-        "sha",
+        "show_sha_url",
         "message",
         "lines_added",
         "lines_removed",
         "is_merge",
     )
-    list_display_links = ("sha",)
+    list_display_links = ("message",)
+    list_select_related = ("repo",)
 
     def has_delete_permission(self, request, obj=None):
         return False
 
     def has_change_permission(self, request, obj=None):
         return False
+
+    def show_sha_url(self, obj):
+        short_sha = obj.sha[:7]
+        url = obj.repo.gitweb_base_url
+        if url:
+            return format_html(
+                "<a href='{url}'>{display_url}</a>",
+                display_url=short_sha,
+                url=f"{url}/commit/{obj.sha}",
+            )
+        else:
+            return short_sha
+
+    show_sha_url.short_description = "Link to Git"
