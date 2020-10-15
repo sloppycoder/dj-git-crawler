@@ -43,6 +43,15 @@ def index_all_repositories_task(self):
         index_repository_task.delay(repo_id=repo.id)
 
 
+@app.task(bind=True)
+def collect_stats(self):
+    # import any of these at the beginning of the file will
+    # get an "Apps aren't loaded yet" error
+    from stats.collector import populdate_author_stats
+
+    populdate_author_stats()
+
+
 @app.on_after_finalize.connect
 def setup_periodic_tasks(sender, **kwargs):
     # execute this shortly after the application starts
@@ -56,5 +65,10 @@ def setup_periodic_tasks(sender, **kwargs):
 
     sender.add_periodic_task(
         crontab(hour="*", minute="*/15", day_of_week="*"),
+        index_all_repositories_task.s(),
+    )
+
+    sender.add_periodic_task(
+        crontab(hour="*", minute="*/10", day_of_week="*"),
         index_all_repositories_task.s(),
     )
