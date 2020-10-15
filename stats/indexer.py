@@ -19,14 +19,21 @@ def all_hash_for_repo(repo):
     return dict([(c.sha, c.author.id) for c in Commit.objects.filter(repo=repo).all()])
 
 
-def register_repository(name, repo_url, repo_type="UNKNOWN") -> Repository:
+def register_repository(
+    name, repo_url, repo_type="UNKNOWN", gitweb_base_url=None
+) -> Repository:
     repo = Repository.objects.filter(name=name).first()
     if repo is None:
         repo = Repository(
-            name=name, is_remote=is_remote_git_url(repo_url), repo_url=repo_url
+            name=name,
+            is_remote=is_remote_git_url(repo_url),
+            repo_url=repo_url,
+            gitweb_base_url=gitweb_base_url,
         )
         print(f"registering new repo {name} => {name}")
     repo.type = repo_type
+    if gitweb_base_url:
+        repo.gitweb_base_url = gitweb_base_url.replace("$name", repo.name)
     repo.save()
     return repo
 
@@ -38,7 +45,9 @@ def register_git_repositories(conf: ConfigParser = None) -> None:
     gl = Gitlab(settings.GITLAB_URL, private_token=settings.GITLAB_TOKEN)
     for key in [s for s in conf.sections() if s.find("project.") == 0]:
         section = conf[key]
-        group, local_path = section.get("group"), section.get("local_path")
+        group = section.get("group")
+        local_path = section.get("local_path")
+        gitweb_base_url = section.get("gitweb_base_url")
         if local_path and local_path[0] == "~":
             local_path = expanduser(local_path)
         project_type, xfilter = section.get("type", "UNKNOWN"), section.get(
@@ -54,6 +63,7 @@ def register_git_repositories(conf: ConfigParser = None) -> None:
                         name=proj.path_with_namespace,
                         repo_url=proj.ssh_url_to_repo,
                         repo_type=project_type,
+                        gitweb_base_url=gitweb_base_url,
                     )
             except GitlabGetError as e:
                 print(f"gitlab search {group} has some error {e}")
@@ -61,9 +71,12 @@ def register_git_repositories(conf: ConfigParser = None) -> None:
             for path in glob.glob(f"{local_path}/{xfilter}", recursive=True):
                 try:
                     if GitRepository(path).total_commits() > 0:
-                        repo_name = key + path.replace(local_path, "")
+                        repo_name = path.replace(local_path, "")
                         register_repository(
-                            name=repo_name, repo_url=path, repo_type=project_type
+                            name=repo_name,
+                            repo_url=path,
+                            repo_type=project_type,
+                            gitweb_base_url=gitweb_base_url,
                         )
                 except (InvalidGitRepositoryError, GitCommandError):
                     print(f"skipping non Git path {path}")

@@ -69,7 +69,9 @@ def test_register_git_repositories(crawler_conf):
 def run_scan_repositories():
     count = 0
     for repo in scan_repositories():
-        print(f"{repo.name} => {repo.repo_url}")
+        print(f"{repo.name} => {repo.repo_url}, {repo.gitweb_base_url}")
+        assert "https://gitlab.com" in repo.gitweb_base_url
+        assert "$h" not in repo.gitweb_base_url
         count += 1
     assert count == 3
 

@@ -27,6 +27,7 @@ where c.stats_id = stats_authorstat.id
 
 """
 
+
 def populdate_author_stats():
     try:
         cur = connection.cursor()
@@ -34,4 +35,3 @@ def populdate_author_stats():
     except (DatabaseError, IntegrityError) as e:
         exc = traceback.format_exc()
         print(f"exception in populdate_author_stats => {e}\n{exc}")
-

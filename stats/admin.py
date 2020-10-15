@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from django.contrib import admin
 from django.contrib import messages
 from django.forms import TextInput
+from django.utils.html import format_html
 from django.db import models
 from .models import Author, ConfigEntry, Repository, Commit
 
@@ -107,13 +108,16 @@ class LastCommitDateListFilter(admin.SimpleListFilter):
 
 @admin.register(Repository)
 class RepositoryAdmin(admin.ModelAdmin):
+    class Meta:
+        get_latest_by = "-last_commit_at"
+
     list_display = (
         "id",
         "name",
         "type",
         "status",
         "enabled",
-        "repo_url",
+        "show_git_url",
         "last_commit_at",
     )
     list_filter = ("enabled", "status", "type", "is_remote", LastCommitDateListFilter)
@@ -128,6 +132,18 @@ class RepositoryAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+    def show_git_url(self, obj):
+        url = obj.gitweb_base_url
+        if url and len(url) > 50:
+            display_url = f"{url[:26]}...{url[-24:]}"
+            return format_html(
+                "<a href='{url}'>{display_url}</a>", display_url=display_url, url=url
+            )
+        else:
+            return "no link available"
+
+    show_git_url.short_description = "open Git repository"
 
     def disable_action(self, request, queryset):
         queryset.update(enabled=False)
@@ -155,6 +171,9 @@ class RepositoryAdmin(admin.ModelAdmin):
 
 @admin.register(Commit)
 class CommitAdmin(admin.ModelAdmin):
+    class Meta:
+        get_latest_by = "-created_at"
+
     list_display = (
         "sha",
         "message",
