@@ -28,7 +28,7 @@ where c.stats_id = stats_authorstat.id
 """
 
 
-def populdate_author_stats():
+def populate_author_stats():
     try:
         cur = connection.cursor()
         cur.execute(AUTHSTATS_SQL_1)

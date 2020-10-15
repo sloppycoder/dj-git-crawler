@@ -37,9 +37,9 @@ def gather_author_stats_task(self, group_output):
     # the group_output is a parameter passed in by the chord
     # which contains the result of the task group executed
     # prior to invoke this task
-    from stats.collector import populdate_author_stats
+    from stats.collector import populate_author_stats
 
-    populdate_author_stats()
+    populate_author_stats()
 
 
 @app.task(bind=True, name="index_all_repositories")
