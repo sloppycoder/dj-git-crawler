@@ -118,7 +118,7 @@ class LastCommitDateListFilter(admin.SimpleListFilter):
         if self.value() == "mark4":
             return queryset.filter(last_commit_at__gt=mark4)
         if self.value() == "mark5":
-            return queryset.all()
+            return queryset.filter(last_commit_at__lte=mark4)
 
 
 @admin.register(Repository)
@@ -136,14 +136,14 @@ class RepositoryAdmin(admin.ModelAdmin):
         "last_commit_at",
     )
     list_filter = ("enabled", "status", "type", "is_remote", LastCommitDateListFilter)
-    search_fields = ["name"]
+    search_fields = ["id", "name"]
     actions = ["disable_action", "enable_action", "set_ready_action"]
     # the settings below controls inline editing of "type" field
     list_editable = ["type"]
     save_on_top = True
-    formfield_overrides = {
-        models.CharField: {"widget": TextInput(attrs={"size": "10"})},
-    }
+    # formfield_overrides = {
+    #     models.CharField: {"widget": TextInput(attrs={"size": "10"})},
+    # }
 
     def has_delete_permission(self, request, obj=None):
         return False
