@@ -90,10 +90,10 @@ class ConfigEntryAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return False
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return False
 
-    def has_change_permission(self, request):
+    def has_change_permission(self, request, obj=None):
         return request.user.username == "admin"
 
 
@@ -145,7 +145,7 @@ class AuthorAndStatAdmin(admin.ModelAdmin):
     def has_change_permission(self, request, obj=None):
         return False
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return False
 
 
@@ -238,7 +238,7 @@ class CommitAdmin(admin.ModelAdmin):
     def has_change_permission(self, request, obj=None):
         return False
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return False
 
     def repo_name(self, obj):
