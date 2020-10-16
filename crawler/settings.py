@@ -6,7 +6,7 @@ load_dotenv()
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.getenv("DJANGO_SECRET")
 DEBUG = True
-ALLOWED_HOSTS = ["gf63", "192.168.20.71", "localhost", "127.0.0.1"]
+ALLOWED_HOSTS = [os.getenv("DJANGO_HOST", "localhost"), "127.0.0.1"]
 
 LOGGING = {
     "version": 1,
@@ -83,8 +83,8 @@ DATABASES = {
         "NAME": "gitcrawler",
         "USER": os.getenv("PG_USERNAME"),
         "PASSWORD": os.getenv("PG_PASSWORD"),
-        "HOST": "127.0.0.1",
-        "PORT": "5432",
+        "HOST": os.getenv("PG_HOST", "127.0.0.1"),
+        "PORT": os.getenv("PG_PORT", "5432"),
     }
 }
 
