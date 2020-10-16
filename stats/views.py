@@ -1,6 +1,10 @@
 from django.http import JsonResponse, HttpResponse
 from .models import Author
-from .celery import discover_repositories_task, index_all_repositories_task, gather_author_stats_task
+from .celery import (
+    discover_repositories_task,
+    index_all_repositories_task,
+    gather_author_stats_task,
+)
 
 
 def index(request):
@@ -36,4 +40,3 @@ def stat(request):
         return JsonResponse({"status": "Submitted"})
     else:
         return HttpResponse("Unauthorized", status=401)
-
