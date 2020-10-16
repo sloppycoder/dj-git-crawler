@@ -1,0 +1,10 @@
+.idea/
+*.iml
+.vscode/
+.pytest_cache/
+.flake8
+.env
+.git/
+pyproject.toml
+poetry.lock
+README.md
