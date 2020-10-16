@@ -80,7 +80,7 @@ WSGI_APPLICATION = "crawler.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": "gitcrawler",
+        "NAME": os.getenv("PG_DATABASE", "gitcrawler"),
         "USER": os.getenv("PG_USERNAME"),
         "PASSWORD": os.getenv("PG_PASSWORD"),
         "HOST": os.getenv("PG_HOST", "127.0.0.1"),
