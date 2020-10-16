@@ -1,11 +1,17 @@
 from datetime import datetime, timedelta
+
 from django.contrib import admin
 from django.contrib import messages
-from django.forms import TextInput
-from django.utils.html import format_html
+from django.contrib.admin.templatetags.admin_urls import admin_urlname
+from django.contrib.auth.models import Group, User
 from django.db import models
-from .models import Author, AuthorStat, AuthorAndStat, ConfigEntry, Repository, Commit
+from django.db.models import Model
+from django.forms import TextInput
+from django.shortcuts import resolve_url
+from django.utils.html import format_html
+from django.utils.safestring import SafeText
 
+from .models import Author, AuthorAndStat, ConfigEntry, Repository, Commit
 
 #
 # Hack: unregister models from other installed apps
@@ -13,9 +19,6 @@ from .models import Author, AuthorStat, AuthorAndStat, ConfigEntry, Repository, 
 #
 
 # unregister django-celery-results models
-from django.contrib.auth.models import Group, User
-
-
 admin.site.unregister(Group)
 admin.site.unregister(User)
 
@@ -39,11 +42,49 @@ admin.site.unregister(IntervalSchedule)
 admin.site.unregister(PeriodicTask)
 admin.site.unregister(SolarSchedule)
 
+
 #
 # End of unregister other models hack
 #
 
+#
+# helpers
+#
+class LastCommitDateListFilter(admin.SimpleListFilter):
+    title = "Last Commit"
 
+    # Parameter for the filter that will be used in the URL query.
+    parameter_name = "last_commit"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("mark1", "last 3 days"),
+            ("mark2", "last 7 days"),
+            ("mark3", "last 30 days"),
+            ("mark4", "last 365 days"),
+            ("mark5", "it's been a while"),
+        )
+
+    def queryset(self, request, queryset):
+        mark1 = datetime.now().astimezone() - timedelta(days=3)
+        mark2 = datetime.now().astimezone() - timedelta(days=7)
+        mark3 = datetime.now().astimezone() - timedelta(days=30)
+        mark4 = datetime.now().astimezone() - timedelta(days=365)
+        if self.value() == "mark1":
+            return queryset.filter(last_commit_at__gt=mark1)
+        if self.value() == "mark2":
+            return queryset.filter(last_commit_at__gt=mark2)
+        if self.value() == "mark3":
+            return queryset.filter(last_commit_at__gt=mark3)
+        if self.value() == "mark4":
+            return queryset.filter(last_commit_at__gt=mark4)
+        if self.value() == "mark5":
+            return queryset.filter(last_commit_at__lte=mark4)
+
+
+#
+#  ModelAdmin classes
+#
 @admin.register(ConfigEntry)
 class ConfigEntryAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
@@ -51,6 +92,10 @@ class ConfigEntryAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request):
         return False
+
+    def has_change_permission(self, request):
+        return request.user.username == "admin"
+
 
 
 @admin.register(Author)
@@ -91,6 +136,8 @@ class AuthorAndStatAdmin(admin.ModelAdmin):
         "commit_count",
         "merge_commit_count",
     )
+    list_filter = ("tag1", "tag2", "tag3")
+    search_fields = ["name", "email"]
 
     def has_delete_permission(self, request, obj=None):
         return False
@@ -100,38 +147,6 @@ class AuthorAndStatAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request):
         return False
-
-
-class LastCommitDateListFilter(admin.SimpleListFilter):
-    title = "Last Commit"
-
-    # Parameter for the filter that will be used in the URL query.
-    parameter_name = "last_commit"
-
-    def lookups(self, request, model_admin):
-        return (
-            ("mark1", "last 3 days"),
-            ("mark2", "last 7 days"),
-            ("mark3", "last 30 days"),
-            ("mark4", "last 365 days"),
-            ("mark5", "it's been a while"),
-        )
-
-    def queryset(self, request, queryset):
-        mark1 = datetime.now().astimezone() - timedelta(days=3)
-        mark2 = datetime.now().astimezone() - timedelta(days=7)
-        mark3 = datetime.now().astimezone() - timedelta(days=30)
-        mark4 = datetime.now().astimezone() - timedelta(days=365)
-        if self.value() == "mark1":
-            return queryset.filter(last_commit_at__gt=mark1)
-        if self.value() == "mark2":
-            return queryset.filter(last_commit_at__gt=mark2)
-        if self.value() == "mark3":
-            return queryset.filter(last_commit_at__gt=mark3)
-        if self.value() == "mark4":
-            return queryset.filter(last_commit_at__gt=mark4)
-        if self.value() == "mark5":
-            return queryset.filter(last_commit_at__lte=mark4)
 
 
 @admin.register(Repository)
@@ -154,6 +169,7 @@ class RepositoryAdmin(admin.ModelAdmin):
     # the settings below controls inline editing of "type" field
     list_editable = ["type"]
     save_on_top = True
+
     # formfield_overrides = {
     #     models.CharField: {"widget": TextInput(attrs={"size": "10"})},
     # }
@@ -203,14 +219,18 @@ class CommitAdmin(admin.ModelAdmin):
         get_latest_by = "-created_at"
 
     list_display = (
-        "show_sha_url",
+        "repo_name",
         "message",
+        "author_url",
         "lines_added",
         "lines_removed",
         "is_merge",
+        "sha_url",
     )
     list_display_links = ("message",)
-    list_select_related = ("repo",)
+    list_select_related = ("repo", "author")
+    list_filter = ("repo__type",)
+    search_fields = ["author__name"]
 
     def has_delete_permission(self, request, obj=None):
         return False
@@ -221,7 +241,16 @@ class CommitAdmin(admin.ModelAdmin):
     def has_add_permission(self, request):
         return False
 
-    def show_sha_url(self, obj):
+    def repo_name(self, obj):
+        name = obj.repo.name
+        # the last bit of the name after the rightmost "/"
+        return name[name.rfind("/") + 1:]
+
+    def author_url(self, obj):
+        url = resolve_url(admin_urlname(AuthorAndStat._meta, SafeText("change")), obj.author.id)
+        return format_html('<a href="{}">{}</a>', url, str(obj.author))
+
+    def sha_url(self, obj):
         short_sha = obj.sha[:7]
         url = obj.repo.gitweb_base_url
         if url:
@@ -233,4 +262,4 @@ class CommitAdmin(admin.ModelAdmin):
         else:
             return short_sha
 
-    show_sha_url.short_description = "Link to Git"
+    sha_url.short_description = "Link to Git"
