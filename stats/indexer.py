@@ -82,7 +82,7 @@ def register_git_repositories(conf: ConfigParser = None) -> None:
                     print(f"skipping non Git path {path}")
                 except Exception as e:
                     print(
-                        f"got exception when trying to open git repository at {path} => {e}"
+                        f"exception when trying to open git repository at {path} => {e}"
                     )
 
 

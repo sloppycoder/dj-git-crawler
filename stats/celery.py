@@ -51,7 +51,7 @@ def index_all_repositories_task(self, **kwargs):
     # chord allows a task to be executed after all
     # tasks ina group has completed
     cut_off = timezone.make_aware(datetime.now() - timedelta(minutes=5))
-    tasks = chord(
+    chord(
         [
             index_repository_task.s(repo_id=repo.id)
             for repo in scan_repositories(cut_off=cut_off)
