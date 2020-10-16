@@ -1,7 +1,7 @@
 from django.db import migrations
 
 VIEW_SQL = """
-create or replace view stats_author_stats_view
+create view stats_author_stats_view
 as
     select stats_author.id id, name, email, tag1, tag2, tag3, 
            lines_added, lines_removed, commit_count, merge_commit_count
