@@ -20,11 +20,11 @@ class Command(BaseCommand):
 
     def create_user(self, username, password):
         user = get_user_model()
-        if user.objects.get(username="admin") is not None:
+        if user.objects.filter(username=username).count() > 0:
             print(f"User {username} already exists")
             return
         try:
-            user.objects.create_superuser("admin", "user@company.com", password)
-            print("admin user created")
+            user.objects.create_superuser(username, "user@company.com", password)
+            print(f"{username} user created")
         except IntegrityError as e:
             print(f"Can't create user admin, {e}")
