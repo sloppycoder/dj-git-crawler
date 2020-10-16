@@ -5,10 +5,10 @@ from django.contrib import messages
 from django.contrib.admin.templatetags.admin_urls import admin_urlname
 from django.contrib.auth.models import Group, User
 from django.db import models
-from django.db.models import Model
 from django.forms import TextInput
 from django.shortcuts import resolve_url
 from django.utils.html import format_html
+from django.utils.http import urlencode
 from django.utils.safestring import SafeText
 
 from .models import Author, AuthorAndStat, ConfigEntry, Repository, Commit
@@ -97,7 +97,6 @@ class ConfigEntryAdmin(admin.ModelAdmin):
         return request.user.username == "admin"
 
 
-
 @admin.register(Author)
 class AuthorAdmin(admin.ModelAdmin):
     list_display = (
@@ -133,7 +132,7 @@ class AuthorAndStatAdmin(admin.ModelAdmin):
         "tag3",
         "lines_added",
         "lines_removed",
-        "commit_count",
+        "commit_url",
         "merge_commit_count",
     )
     list_filter = ("tag1", "tag2", "tag3")
@@ -147,6 +146,11 @@ class AuthorAndStatAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request, obj=None):
         return False
+
+    def commit_url(self, obj):
+        url = resolve_url(admin_urlname(Commit._meta, SafeText("changelist")))
+        url += SafeText(f'?{urlencode({"q":obj.email})}')
+        return format_html('<a href="{}">{}</a>', url, obj.commit_count)
 
 
 @admin.register(Repository)
@@ -230,7 +234,7 @@ class CommitAdmin(admin.ModelAdmin):
     list_display_links = ("message",)
     list_select_related = ("repo", "author")
     list_filter = ("repo__type",)
-    search_fields = ["author__name"]
+    search_fields = ["author__name", "author__email"]
 
     def has_delete_permission(self, request, obj=None):
         return False
@@ -244,11 +248,13 @@ class CommitAdmin(admin.ModelAdmin):
     def repo_name(self, obj):
         name = obj.repo.name
         # the last bit of the name after the rightmost "/"
-        return name[name.rfind("/") + 1:]
+        return name[name.rfind("/") + 1 :]
 
     def author_url(self, obj):
-        url = resolve_url(admin_urlname(AuthorAndStat._meta, SafeText("change")), obj.author.id)
-        return format_html('<a href="{}">{}</a>', url, str(obj.author))
+        author = obj.author if not obj.author.is_alias else obj.author.original
+        view = admin_urlname(AuthorAndStat._meta, SafeText("change"))
+        url = resolve_url(view, author.id)
+        return format_html('<a href="{}">{}</a>', url, str(author))
 
     def sha_url(self, obj):
         short_sha = obj.sha[:7]
