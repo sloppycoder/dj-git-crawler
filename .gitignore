@@ -48,3 +48,6 @@ celerybeat-schedule
 
 # sqlite files
 **/*.sqlite3*
+
+# project files
+root/ssh/id_rsa

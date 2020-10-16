@@ -6,7 +6,10 @@ RUN apt-get -qq update \
         g++ \
         libffi-dev \
         libpq-dev \
-        netcat
+        netcat \
+        git \
+        ssh \
+        nano
 
 RUN pip install --upgrade pip
 COPY requirements-build.txt .
@@ -15,8 +18,7 @@ RUN pip install --root="/install" -r requirements-build.txt
 FROM builder
 COPY --from=builder /install /
 
-COPY entrypoint.sh  /
 COPY . .
 
-EXPOSE 8000
+EXPOSE 8000 8001
 ENTRYPOINT ["/entrypoint.sh"]

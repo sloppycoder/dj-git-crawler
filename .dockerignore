@@ -8,3 +8,5 @@
 pyproject.toml
 poetry.lock
 README.md
+root/ssh/id_rsa
+r
