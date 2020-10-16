@@ -4,8 +4,8 @@ import re
 # files matches any of the regex will not be counted
 # towards commit stats
 IGNORE_PATTERNS = [
-    re.compile("^vendor/"),
-    re.compile(".*\\.jar$"),
+    re.compile("^vendor/."),
+    re.compile(".*\\.(jar|pbxproj|lock)$"),
 ]
 
 GIT_REPO_PATTERN = re.compile("^(http://|https://|ssh://|git@).*.\\.git$")

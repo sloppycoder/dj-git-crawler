@@ -4,9 +4,19 @@ from stats.utils import should_ignore_path, is_remote_git_url
 
 
 def test_ignore_patterns():
+    # vendered Go dependencies
     assert should_ignore_path("vendor/librar/stuff/blah.go")
+    assert should_ignore_path("vendor/librar/stuff/README.md")
+    # binary file
     assert should_ignore_path("lib/my_stupid_jar/blah.jar")
-    assert should_ignore_path("blah.jar")
+    assert should_ignore_path("java.jar")
+    # Xcode project
+    assert should_ignore_path("Accelerator.xcodeproj/project.pbxproj")
+    # Cocoa pod lock
+    assert should_ignore_path("Podfile.lock")
+    # yarn lock
+    assert should_ignore_path("yarn.lock")
+
     assert not should_ignore_path("src/main/my/company/package/Application.java")
     assert not should_ignore_path("src/resources/application.yaml")
 
