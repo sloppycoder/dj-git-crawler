@@ -132,8 +132,9 @@ class AuthorAndStatAdmin(admin.ModelAdmin):
         "tag3",
         "lines_added",
         "lines_removed",
-        "commit_url",
+        "commit_count",
         "merge_commit_count",
+        "commits"
     )
     list_filter = ("tag1", "tag2", "tag3")
     search_fields = ["name", "email"]
@@ -147,10 +148,10 @@ class AuthorAndStatAdmin(admin.ModelAdmin):
     def has_add_permission(self, request, obj=None):
         return False
 
-    def commit_url(self, obj):
+    def commits(self, obj):
         url = resolve_url(admin_urlname(Commit._meta, SafeText("changelist")))
         url += SafeText(f'?{urlencode({"q":obj.email})}')
-        return format_html('<a href="{}">{}</a>', url, obj.commit_count)
+        return format_html('<a href="{}">{}</a>', url, "link")
 
 
 @admin.register(Repository)
@@ -234,7 +235,7 @@ class CommitAdmin(admin.ModelAdmin):
     list_display_links = ("message",)
     list_select_related = ("repo", "author")
     list_filter = ("repo__type",)
-    search_fields = ["author__name", "author__email"]
+    search_fields = ["author__name", "author__email", "repo__name"]
 
     def has_delete_permission(self, request, obj=None):
         return False

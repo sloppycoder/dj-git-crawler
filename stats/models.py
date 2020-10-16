@@ -55,6 +55,8 @@ class AuthorAndStat(models.Model):
     merge_commit_count = models.IntegerField()
 
     class Meta:
+        verbose_name = "Author and Stat"
+        verbose_name_plural = "Authors and Stats"
         managed = False
         db_table = "stats_author_stats_view"
         ordering = ["-commit_count"]
