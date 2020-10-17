@@ -5,7 +5,9 @@ if [ ! "$KEY_PASSWORD" = "" ]; then
   cd /root
   mv ssh .ssh
   cd .ssh
-  openssl enc -d -pbkdf2 -salt  -in id_rsa.enc  -k $KEY_PASSWORD -out id_rsa
+  # the encryption was done by using this command
+  #  openssl enc -aes-256-cbc -pbkdf2 -salt  -in id_rsa  -out id_rsa.enc -k KEY_PASSWORD
+  openssl enc -d -aes-256-cbc -pbkdf2  -in id_rsa.enc  -out id_rsa -k $KEY_PASSWORD
   chmod 600 id_rsa
   cd /
 fi
