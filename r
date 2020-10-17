@@ -14,7 +14,6 @@ docker run -it -p 8000:8000 -p 8001:8001 \
   -e REDIS_URI=redis://172.17.0.1:6379 \
   -e DJANGO_SECRET=$DJANGO_SECRET \
   -e GITLAB_TOKEN=$GITLAB_TOKEN \
-  -e DJANGO_HOST=$DJANGO_HOST \
-  -e KEY_PASSWORD=$1 \
-  sloppycoder/git-crawler:v0.5 $2
+  -e KEY_PASSWORD=$KEY_PASSWORD \
+  sloppycoder/git-crawler:v0.5 $*
 
