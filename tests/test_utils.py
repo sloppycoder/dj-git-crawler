@@ -14,6 +14,7 @@ def test_ignore_patterns():
     assert should_ignore_path("Accelerator.xcodeproj/project.pbxproj")
     # Cocoa pod lock
     assert should_ignore_path("Podfile.lock")
+    assert should_ignore_path("Pods/Firebase/CoreOnly/Sources/Firebase.h")
     # yarn lock
     assert should_ignore_path("yarn.lock")
 

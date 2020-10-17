@@ -4,7 +4,7 @@ import re
 # files matches any of the regex will not be counted
 # towards commit stats
 IGNORE_PATTERNS = [
-    re.compile("^vendor/."),
+    re.compile("^(vendor|Pods)/."),
     re.compile(".*\\.(jar|pbxproj|lock)$"),
 ]
 
