@@ -36,5 +36,4 @@ if [ ! "$1" = "web" ]; then
   flower -A stats --port=8001 &
 fi
 
-DEBUG_MODE=1
-python manage.py runserver 0.0.0.0:8000
+gunicorn --workers=2 crawler.wsgi --bind=0.0.0.0:8000
