@@ -5,7 +5,7 @@ load_dotenv()
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.getenv("DJANGO_SECRET")
-DEBUG = os.getenv("DEBUG_MODE","") == "1"
+DEBUG = os.getenv("DEBUG_MODE", "") == "1"
 ALLOWED_HOSTS = [os.getenv("DJANGO_HOST", "*"), "127.0.0.1", "[::1]"]
 
 LOGGING = {
