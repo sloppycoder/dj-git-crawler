@@ -12,6 +12,11 @@ from django.utils.http import urlencode
 from django.utils.safestring import SafeText
 
 from .models import Author, AuthorAndStat, ConfigEntry, Repository, Commit
+from .celery import (
+    index_repository_task,
+    discover_repositories_task,
+    gather_author_stats_task,
+)
 
 #
 # Hack: unregister models from other installed apps
@@ -138,6 +143,7 @@ class AuthorAndStatAdmin(admin.ModelAdmin):
     )
     list_filter = ("tag1", "tag2", "tag3")
     search_fields = ["name", "email"]
+    actions = ["stats_action"]
 
     def has_delete_permission(self, request, obj=None):
         return False
@@ -153,6 +159,12 @@ class AuthorAndStatAdmin(admin.ModelAdmin):
         url += SafeText(f'?{urlencode({"q":obj.email})}')
         return format_html('<a href="{}">{}</a>', url, "link")
 
+    def stats_action(self, request, queryset):
+        gather_author_stats_task.delay([])
+        messages.success(request, "Statistics will be updated shortly.")
+
+    stats_action.short_description = "Index the selected repositories"
+
 
 @admin.register(Repository)
 class RepositoryAdmin(admin.ModelAdmin):
@@ -167,10 +179,18 @@ class RepositoryAdmin(admin.ModelAdmin):
         "enabled",
         "show_git_url",
         "last_commit_at",
+        "last_status_at",
     )
     list_filter = ("enabled", "status", "type", "is_remote", LastCommitDateListFilter)
     search_fields = ["id", "name"]
-    actions = ["disable_action", "enable_action", "set_ready_action"]
+    actions = [
+        "disable_action",
+        "enable_action",
+        "set_ready_action",
+        "scan_action",
+        # name begins with z to ensure it appears at the bottom of the dropdown
+        "zdiscover_action",
+    ]
     # the settings below controls inline editing of "type" field
     list_editable = ["type"]
     save_on_top = True
@@ -216,6 +236,21 @@ class RepositoryAdmin(admin.ModelAdmin):
         messages.success(request, "Selected repositories reset to Ready status")
 
     set_ready_action.short_description = "Reset selected repositories status to Ready"
+
+    def scan_action(self, request, queryset):
+        for repo in queryset.all():
+            index_repository_task.delay(repo_id=repo.id)
+        messages.success(request, "Selected repositories will be scanned shortly")
+
+    scan_action.short_description = "Scan the selected repositories"
+
+    def zdiscover_action(self, request, queryset):
+        # this action does not require any repo to be selected
+        # it's here just as a hack, should find a better place for it
+        discover_repositories_task.delay()
+        messages.success(request, "New repositories will show here shortly")
+
+    zdiscover_action.short_description = "Discover new repositories"
 
 
 @admin.register(Commit)
