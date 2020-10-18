@@ -264,7 +264,7 @@ class CommitAdmin(admin.ModelAdmin):
         "author_url",
         "lines_added",
         "lines_removed",
-        "is_merge",
+        "created_at",
         "sha_url",
     )
     list_display_links = ("message",)
