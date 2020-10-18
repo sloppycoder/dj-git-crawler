@@ -163,7 +163,7 @@ class AuthorAndStatAdmin(admin.ModelAdmin):
         gather_author_stats_task.delay([])
         messages.success(request, "Statistics will be updated shortly.")
 
-    stats_action.short_description = "Index the selected repositories"
+    stats_action.short_description = "Update the commit statistics"
 
 
 @admin.register(Repository)
