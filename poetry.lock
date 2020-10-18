@@ -400,6 +400,17 @@ python-versions = "*"
 twisted = ["twisted"]
 
 [[package]]
+name = "psutil"
+version = "5.7.2"
+description = "Cross-platform lib for process and system monitoring in Python."
+category = "main"
+optional = false
+python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+
+[package.extras]
+test = ["ipaddress", "mock", "unittest2", "enum34", "pywin32", "wmi"]
+
+[[package]]
 name = "psycopg2"
 version = "2.8.6"
 description = "psycopg2 - Python-PostgreSQL Database Adapter"
@@ -574,6 +585,18 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 hiredis = ["hiredis (>=0.1.3)"]
 
 [[package]]
+name = "redislite"
+version = "5.0.165407"
+description = "Redis built into a python package"
+category = "main"
+optional = false
+python-versions = ">=2.7.11"
+
+[package.dependencies]
+psutil = "*"
+redis = "*"
+
+[[package]]
 name = "regex"
 version = "2020.10.11"
 description = "Alternative regular expression module, to replace re."
@@ -679,7 +702,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "3d8c824737d11bcb547dee7694501a80b54a285a8f57bd0ca0cbf1e0fe7b64ac"
+content-hash = "a5b6cb738fed19c9a47223087d167676fe5b2e8cd6ccf1ec4a308eeefa88a768"
 
 [metadata.files]
 amqp = [
@@ -809,6 +832,19 @@ prometheus-client = [
     {file = "prometheus_client-0.8.0-py2.py3-none-any.whl", hash = "sha256:983c7ac4b47478720db338f1491ef67a100b474e3bc7dafcbaefb7d0b8f9b01c"},
     {file = "prometheus_client-0.8.0.tar.gz", hash = "sha256:c6e6b706833a6bd1fd51711299edee907857be10ece535126a158f911ee80915"},
 ]
+psutil = [
+    {file = "psutil-5.7.2-cp27-none-win32.whl", hash = "sha256:f2018461733b23f308c298653c8903d32aaad7873d25e1d228765e91ae42c3f2"},
+    {file = "psutil-5.7.2-cp27-none-win_amd64.whl", hash = "sha256:66c18ca7680a31bf16ee22b1d21b6397869dda8059dbdb57d9f27efa6615f195"},
+    {file = "psutil-5.7.2-cp35-cp35m-win32.whl", hash = "sha256:5e9d0f26d4194479a13d5f4b3798260c20cecf9ac9a461e718eb59ea520a360c"},
+    {file = "psutil-5.7.2-cp35-cp35m-win_amd64.whl", hash = "sha256:4080869ed93cce662905b029a1770fe89c98787e543fa7347f075ade761b19d6"},
+    {file = "psutil-5.7.2-cp36-cp36m-win32.whl", hash = "sha256:d8a82162f23c53b8525cf5f14a355f5d1eea86fa8edde27287dd3a98399e4fdf"},
+    {file = "psutil-5.7.2-cp36-cp36m-win_amd64.whl", hash = "sha256:0ee3c36428f160d2d8fce3c583a0353e848abb7de9732c50cf3356dd49ad63f8"},
+    {file = "psutil-5.7.2-cp37-cp37m-win32.whl", hash = "sha256:ff1977ba1a5f71f89166d5145c3da1cea89a0fdb044075a12c720ee9123ec818"},
+    {file = "psutil-5.7.2-cp37-cp37m-win_amd64.whl", hash = "sha256:a5b120bb3c0c71dfe27551f9da2f3209a8257a178ed6c628a819037a8df487f1"},
+    {file = "psutil-5.7.2-cp38-cp38-win32.whl", hash = "sha256:10512b46c95b02842c225f58fa00385c08fa00c68bac7da2d9a58ebe2c517498"},
+    {file = "psutil-5.7.2-cp38-cp38-win_amd64.whl", hash = "sha256:68d36986ded5dac7c2dcd42f2682af1db80d4bce3faa126a6145c1637e1b559f"},
+    {file = "psutil-5.7.2.tar.gz", hash = "sha256:90990af1c3c67195c44c9a889184f84f5b2320dce3ee3acbd054e3ba0b4a7beb"},
+]
 psycopg2 = [
     {file = "psycopg2-2.8.6-cp27-cp27m-win32.whl", hash = "sha256:068115e13c70dc5982dfc00c5d70437fe37c014c808acce119b5448361c03725"},
     {file = "psycopg2-2.8.6-cp27-cp27m-win_amd64.whl", hash = "sha256:d160744652e81c80627a909a0e808f3c6653a40af435744de037e3172cf277f5"},
@@ -878,6 +914,27 @@ pytz = [
 redis = [
     {file = "redis-3.5.3-py2.py3-none-any.whl", hash = "sha256:432b788c4530cfe16d8d943a09d40ca6c16149727e4afe8c2c9d5580c59d9f24"},
     {file = "redis-3.5.3.tar.gz", hash = "sha256:0e7e0cfca8660dea8b7d5cd8c4f6c5e29e11f31158c0b0ae91a397f00e5a05a2"},
+]
+redislite = [
+    {file = "redislite-5.0.165407-cp27-cp27m-manylinux1_x86_64.whl", hash = "sha256:f8d076c70a3d78cdfae0579bd61a6063b42d0de062dab5cccbda4de9d31edbd2"},
+    {file = "redislite-5.0.165407-cp27-cp27m-manylinux2010_x86_64.whl", hash = "sha256:0adb1947f16e434490a721f384a5dd3e34606a33e15e2b3e12e7512387a935b9"},
+    {file = "redislite-5.0.165407-cp27-cp27mu-manylinux1_x86_64.whl", hash = "sha256:bf4eb4a236c6b4c7d80c16921fbc69d5343ebda7980c8cad25b7cc06bd50bf9b"},
+    {file = "redislite-5.0.165407-cp27-cp27mu-manylinux2010_x86_64.whl", hash = "sha256:ce9ba6647b4eb99d8dfb815f76be85eb51725eb0e4a72907e59650060ab8b70d"},
+    {file = "redislite-5.0.165407-cp34-cp34m-manylinux1_x86_64.whl", hash = "sha256:dd8074ee423b246539a946963fc80f8bbca1f12acdb65d596d7f2f1064ab6e5b"},
+    {file = "redislite-5.0.165407-cp34-cp34m-manylinux2010_x86_64.whl", hash = "sha256:ea790799440ca4cd97ffb56d1d4565a84feb2a9f3e4cf2ed884e8fbb19b9ecc5"},
+    {file = "redislite-5.0.165407-cp35-cp35m-manylinux1_x86_64.whl", hash = "sha256:8cd868bd6efa474d19cf83b167200e86500d2643b67567b6749ea4f9110f7c33"},
+    {file = "redislite-5.0.165407-cp35-cp35m-manylinux2010_x86_64.whl", hash = "sha256:c842f2282ae0259d3dfbdb798ed2a4da91380e80f957ee304fbc40cb5c8aedce"},
+    {file = "redislite-5.0.165407-cp35-cp35m-manylinux2014_x86_64.whl", hash = "sha256:00a892ac410414c8f38d5920deb7eb4d5af48a6de984822d701739bc51f75cf3"},
+    {file = "redislite-5.0.165407-cp36-cp36m-manylinux1_x86_64.whl", hash = "sha256:c8e12a1394c60f7725116e2d2617821228ccf2cd9970d1272e623bd2a8e311d8"},
+    {file = "redislite-5.0.165407-cp36-cp36m-manylinux2010_x86_64.whl", hash = "sha256:ca4943650090d7ba57383e9767b13ddd0e7c218caebbe1630f34b3e6cbaf9800"},
+    {file = "redislite-5.0.165407-cp36-cp36m-manylinux2014_x86_64.whl", hash = "sha256:74704070ff74c52c3aa3e83595fc0a81cae1a867126dad6f1839698b21e24359"},
+    {file = "redislite-5.0.165407-cp37-cp37m-manylinux1_x86_64.whl", hash = "sha256:cec33eb672a4af295d96b043731e7d103a4179a55a42b0fd21fb20a9b4dc1329"},
+    {file = "redislite-5.0.165407-cp37-cp37m-manylinux2010_x86_64.whl", hash = "sha256:8e0e92d51cf7c5332cc3dae3096a309de25d4b0d6488e3989dcc9acb6831ef94"},
+    {file = "redislite-5.0.165407-cp37-cp37m-manylinux2014_x86_64.whl", hash = "sha256:fae58685c3f698761362e41570c995366293b8d8ecd77e190dad6fa3e03c4193"},
+    {file = "redislite-5.0.165407-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:8fcb38d26bf86958ba0ffd8cf83ec4496c8474e39f3e009e1c4219c544aa2eef"},
+    {file = "redislite-5.0.165407-cp38-cp38-manylinux2010_x86_64.whl", hash = "sha256:dcc1e33f0f7c33134851f5ec82b52c934cd903671a4727252700de76e0e2691c"},
+    {file = "redislite-5.0.165407-cp38-cp38-manylinux2014_x86_64.whl", hash = "sha256:aef82214239b2336df2bbb7d9578a0b4a5e417df85158945383d7eb7d3492a36"},
+    {file = "redislite-5.0.165407.tar.gz", hash = "sha256:6591f4e42375db52693183ac50020821107f7f2d18c65eaf9dbcdf91e0980e8a"},
 ]
 regex = [
     {file = "regex-2020.10.11-cp27-cp27m-win32.whl", hash = "sha256:4f5c0fe46fb79a7adf766b365cae56cafbf352c27358fda811e4a1dc8216d0db"},

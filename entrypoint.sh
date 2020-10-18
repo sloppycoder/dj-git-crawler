@@ -33,7 +33,9 @@ fi
 
 if [ ! "$1" = "web" ]; then
   celery -A stats worker --beat --scheduler django --concurrency 2 &
+  sleep 2
   flower -A stats --port=8001 &
+  sleep 2
 fi
 
 gunicorn --workers=2 crawler.wsgi --bind=0.0.0.0:8000

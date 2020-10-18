@@ -1,4 +1,5 @@
 import os
+from redislite import Redis
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -109,13 +110,22 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 STATIC_URL = "/static/"
 
+# use redislite in case an external redis server is
+# not specified by REDIS_URI
+redis_uri = os.getenv("REDIS_URI")
+
+if redis_uri is None:
+    rdb = Redis("/tmp/gitcrawler_redis.db")
+    redis_uri = f"redis+socket://{rdb.socket_file}"
+
 # Celery related settings
 CELERY_TIMEZONE = TIME_ZONE
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60
+CELERY_BROKER_URL = redis_uri
 CELERY_RESULT_BACKEND = "django-db"
 CELERY_CACHE_BACKEND = "django-cache"
-CELERY_BROKER_URL = os.getenv("REDIS_URI", "redis://127.0.0.1:6379")
+print(f"*** REDIS_URI = {redis_uri} ****")
 
 # Gitlab
 GITLAB_TOKEN = os.getenv("GITLAB_TOKEN")
