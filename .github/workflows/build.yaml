@@ -6,27 +6,16 @@ on:
       - v*
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
-
     steps:
       - name: checkout
         uses: actions/checkout@v2
 
-      - name: build
-        uses: actions/docker/cli@master
+      - name: build and push image
+        uses: docker/build-push-action@v1
         with:
-          args: build -t sloppycoder/git-crawler:{{ GITHUB_REF }} .
-
-      - name: docker login
-        uses: actions/docker/login@master
-        env:
-          DOCKER_USERNAME: sloppycoder
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_HUB_PASS }}
-
-      - name: docker push
-        uses: actions/docker/cli@master
-        with:
-          args: push sloppycoder/git-crawler:{{ GITHUB_REF }}
+          username: ${{ sloppycoder }}
+          password: ${{ secrets.DOCKER_HUB_PASS }}
+          repository: sloppycoder/git-crawler
+          tag_with_ref: true
