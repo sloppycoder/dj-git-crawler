@@ -15,7 +15,7 @@ jobs:
       - name: build and push image
         uses: docker/build-push-action@v1
         with:
-          username: ${{ sloppycoder }}
+          username: sloppycoder
           password: ${{ secrets.DOCKER_HUB_PASS }}
           repository: sloppycoder/git-crawler
           tag_with_ref: true
