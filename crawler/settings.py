@@ -116,7 +116,3 @@ CELERY_TASK_TIME_LIMIT = 30 * 60
 CELERY_RESULT_BACKEND = "django-db"
 CELERY_CACHE_BACKEND = "django-cache"
 CELERY_BROKER_URL = os.getenv("REDIS_URI", "redis://127.0.0.1:6379")
-
-# Gitlab
-GITLAB_TOKEN = os.getenv("GITLAB_TOKEN")
-GITLAB_URL = os.getenv("GITLAB_URL") or "https://gitlab.com"

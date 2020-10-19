@@ -42,9 +42,6 @@ def register_git_repositories(conf: ConfigParser = None) -> None:
     conf = conf or ConfigEntry.get(DEFAULT_CONFIG)
     assert conf is not None
 
-    gl = Gitlab(
-        settings.GITLAB_URL, private_token=settings.GITLAB_TOKEN, ssl_verify=False
-    )
     for key in [s for s in conf.sections() if s.find("project.") == 0]:
         section = conf[key]
         group = section.get("group")
@@ -58,6 +55,10 @@ def register_git_repositories(conf: ConfigParser = None) -> None:
         if local_path is None:
             # remote project, get project info from gitlab
             try:
+                url = section.get("gitlab_url", "https://www.gitlab.com")
+                token = section.get("gitlab_token")
+                ssl_verify = section.get("ssl_verify", "yes") == "yes"
+                gl = Gitlab(url, private_token=token, ssl_verify=ssl_verify)
                 for proj in gl.groups.get(group).projects.list(
                     include_subgroups=True, as_list=False
                 ):
