@@ -123,7 +123,7 @@ def update_commit_stats(git_commit, modifications):
     return git_commit
 
 
-def repositories_for_indexing(status=Repository.RepoStatus.READY, cut_off=None):
+def repositories_for_indexing(status=Repository.RepoStatus.READY, cut_off=None) -> int:
     # by default set cut_off time to 15 mins before
     cut_off = cut_off or datetime.now().astimezone() - timedelta(minutes=15)
     count = 0
@@ -133,6 +133,7 @@ def repositories_for_indexing(status=Repository.RepoStatus.READY, cut_off=None):
         count += 1
         yield repo
     print(f"scanned {count} repositories")
+    return count
 
 
 def enumerate_repositories_by_config(conf):
@@ -180,7 +181,7 @@ def enumerate_gitlab_projects(section):
     token = section.get("gitlab_token")
     ssl_verify = section.get("ssl_verify", "yes") == "yes"
     try:
-        gl = Gitlab(url, ssl_verify=ssl_verify)
+        gl = Gitlab(url, private_token=token, ssl_verify=ssl_verify)
         projects = gl.groups.get(group).projects.list(
             include_subgroups=True, as_list=False
         )
@@ -188,5 +189,5 @@ def enumerate_gitlab_projects(section):
     except GitlabAuthenticationError:
         print(f"authentication error {url}, {token}, {ssl_verify}")
     except GitlabGetError as e:
-        print(f"gitlab search {group} has some error {e}")
+        print(f"gitlab search {group} error {type(e)} => {e}")
     return []
