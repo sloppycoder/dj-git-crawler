@@ -8,7 +8,7 @@ from .celery import (
 
 def job(request):
     code = request.GET.get("code", "")
-    job = request.GET.get("code", "scan")
+    job = request.GET.get("job", "scan")
     if code == "s3cr3t":
         status = "submitted"
         if job == "scan":
