@@ -46,7 +46,7 @@ def gather_author_stats_task(self, group_output):
 def index_all_repositories_task(self, **kwargs):
     # import any of these at the beginning of the file will
     # get an "Apps aren't loaded yet" error
-    from stats.indexer import scan_repositories
+    from stats.indexer import repositories_for_indexing
 
     # chord allows a task to be executed after all
     # tasks ina group has completed
@@ -54,7 +54,7 @@ def index_all_repositories_task(self, **kwargs):
     chord(
         [
             index_repository_task.s(repo_id=repo.id)
-            for repo in scan_repositories(cut_off=cut_off)
+            for repo in repositories_for_indexing(cut_off=cut_off)
         ]
     )(gather_author_stats_task.s())
 

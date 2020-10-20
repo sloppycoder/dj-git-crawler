@@ -1,15 +1,16 @@
 import os
+
 import pytest
 
 from stats.indexer import (
     index_repository,
     locate_author,
     register_git_repositories,
-    scan_repositories,
+    repositories_for_indexing,
     DEFAULT_CONFIG,
+    enumerate_gitlab_projects,
 )
 from stats.models import ConfigEntry
-
 from .utils import (
     author_count,
     create_some_commit,
@@ -66,9 +67,15 @@ def test_register_git_repositories(crawler_conf):
     run_index_remote_repository()
 
 
+def test_enumerate_gitlab_projects(crawler_conf):
+    projs = enumerate_gitlab_projects(crawler_conf["project.remote"])
+    assert len(projs) == 2
+    assert "hello" in projs[0].path_with_namespace
+
+
 def run_scan_repositories():
     count = 0
-    for repo in scan_repositories():
+    for repo in repositories_for_indexing():
         print(f"{repo.name} => {repo.repo_url}, {repo.gitweb_base_url}")
         assert "https://gitlab.com" in repo.gitweb_base_url
         assert "$h" not in repo.gitweb_base_url
@@ -106,5 +113,5 @@ def test_index_all():
     if os.getenv("RUN_RUN_RUN") == "run":
         ConfigEntry.load(DEFAULT_CONFIG, "crawler/crawler.ini")
         register_git_repositories()
-        for repo in scan_repositories():
+        for repo in repositories_for_indexing():
             index_repository(repo.id)
