@@ -127,3 +127,8 @@ class Commit(models.Model):
     author = models.ForeignKey(Author, on_delete=models.PROTECT)
     created_at = models.DateTimeField()
     repo = models.ForeignKey(Repository, on_delete=models.PROTECT)
+
+
+class Job(models.Model):
+    name = models.CharField(max_length=64)
+    description = models.CharField(max_length=256, unique=True)

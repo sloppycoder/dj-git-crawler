@@ -11,9 +11,10 @@ from django.utils.html import format_html
 from django.utils.http import urlencode
 from django.utils.safestring import SafeText
 
-from .models import Author, AuthorAndStat, ConfigEntry, Repository, Commit
+from .models import Author, AuthorAndStat, ConfigEntry, Repository, Commit, Job
 from .celery import (
     index_repository_task,
+    index_all_repositories_task,
     discover_repositories_task,
     gather_author_stats_task,
 )
@@ -143,7 +144,6 @@ class AuthorAndStatAdmin(admin.ModelAdmin):
     )
     list_filter = ("tag1", "tag2", "tag3")
     search_fields = ["name", "email"]
-    actions = ["stats_action"]
 
     def has_delete_permission(self, request, obj=None):
         return False
@@ -158,12 +158,6 @@ class AuthorAndStatAdmin(admin.ModelAdmin):
         url = resolve_url(admin_urlname(Commit._meta, SafeText("changelist")))
         url += SafeText(f'?{urlencode({"q":obj.email})}')
         return format_html('<a href="{}">{}</a>', url, "link")
-
-    def stats_action(self, request, queryset):
-        gather_author_stats_task.delay([])
-        messages.success(request, "Statistics will be updated shortly.")
-
-    stats_action.short_description = "Update the commit statistics"
 
 
 @admin.register(Repository)
@@ -188,8 +182,6 @@ class RepositoryAdmin(admin.ModelAdmin):
         "enable_action",
         "set_ready_action",
         "scan_action",
-        # name begins with z to ensure it appears at the bottom of the dropdown
-        "zdiscover_action",
     ]
     # the settings below controls inline editing of "type" field
     list_editable = ["type"]
@@ -244,14 +236,6 @@ class RepositoryAdmin(admin.ModelAdmin):
 
     scan_action.short_description = "Scan the selected repositories"
 
-    def zdiscover_action(self, request, queryset):
-        # this action does not require any repo to be selected
-        # it's here just as a hack, should find a better place for it
-        discover_repositories_task.delay()
-        messages.success(request, "New repositories will show here shortly")
-
-    zdiscover_action.short_description = "Discover new repositories"
-
 
 @admin.register(Commit)
 class CommitAdmin(admin.ModelAdmin):
@@ -305,3 +289,31 @@ class CommitAdmin(admin.ModelAdmin):
             return short_sha
 
     sha_url.short_description = "Link to Git"
+
+
+@admin.register(Job)
+class JobAdmin(admin.ModelAdmin):
+    list_display = ("name", "description")
+    list_display_links = None
+    actions = ["run_job"]
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def run_job(self, request, queryset):
+        for job in queryset.all():
+            if job.name == "discover":
+                discover_repositories_task.delay()
+                messages.success(request, "discover repository job will start shortly")
+            elif job.name == "index_all":
+                index_all_repositories_task.delay()
+                messages.success(
+                    request, "index all repositories job will start shortly"
+                )
+            elif job.name == "stats":
+                gather_author_stats_task.delay([])
+                messages.success(request, "gather statistics job will start shortly")
+            else:
+                messages.info(request, f"doesn't know what job to run for {job.name}")
+
+    run_job.short_description = "run selected job"
