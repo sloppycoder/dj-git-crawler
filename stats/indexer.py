@@ -54,10 +54,10 @@ def register_git_repositories(conf: ConfigParser = None) -> None:
         )
         if local_path is None:
             # remote project, get project info from gitlab
+            url = section.get("gitlab_url", "https://www.gitlab.com")
+            token = section.get("gitlab_token")
+            ssl_verify = section.get("ssl_verify", "yes") == "yes"
             try:
-                url = section.get("gitlab_url", "https://www.gitlab.com")
-                token = section.get("gitlab_token")
-                ssl_verify = section.get("ssl_verify", "yes") == "yes"
                 gl = Gitlab(url, private_token=token, ssl_verify=ssl_verify)
                 for proj in gl.groups.get(group).projects.list(
                     include_subgroups=True, as_list=False
@@ -68,6 +68,8 @@ def register_git_repositories(conf: ConfigParser = None) -> None:
                         repo_type=project_type,
                         gitweb_base_url=gitweb_base_url,
                     )
+            except GitlabAuthenticationError as e:
+                print(f"authentication error {url}, {token}, {ssl_verify}")
             except GitlabGetError as e:
                 print(f"gitlab search {group} has some error {e}")
         else:
