@@ -13,7 +13,7 @@ as
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("stats", "0001_initial"),
+        ("stats", "0002_authorandstat"),
     ]
 
     operations = [
