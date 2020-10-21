@@ -21,7 +21,6 @@ step 3: Create a ".env" file with the following content,
 # tr -dc 'a-z0-9!@#$%^&*(-_=+)' < /dev/urandom | head -c50
 
 DJANGO_SECRET="some_random_stuff"
-GITLAB_TOKEN="token_to_access_private_repos"
 PG_HOST=your_database_host
 PG_PORT=yoour_data_port
 PG_USERNAME=database_user
