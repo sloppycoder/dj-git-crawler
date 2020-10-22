@@ -1,12 +1,25 @@
+# git repo
+.git/
+
+# IDE and editor
 .idea/
 *.iml
 .vscode/
+
+# test
 .pytest_cache/
+pytest.ini
+
+# de settings
 .flake8
 .env
-.git/
 pyproject.toml
 poetry.lock
-README.md
+
+# other files
+*.md
+*.log
 root/ssh/id_rsa
-r
+run
+Procfile
+requirements-dev.txt
