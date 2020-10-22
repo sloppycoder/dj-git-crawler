@@ -179,6 +179,20 @@ argon2 = ["argon2-cffi (>=16.1.0)"]
 bcrypt = ["bcrypt"]
 
 [[package]]
+name = "django-admin-interface"
+version = "0.14.0"
+description = "django-admin-interface is a modern responsive flat admin interface customizable by the admin itself."
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+django-colorfield = ">=0.2,<1.0"
+django-flat-responsive = ">=1.0,<3.0"
+django-flat-theme = ">=1.0,<2.0"
+six = ">=1.9.0,<2.0.0"
+
+[[package]]
 name = "django-celery-beat"
 version = "2.0.0"
 description = "Database-backed Periodic Tasks."
@@ -202,6 +216,30 @@ python-versions = "*"
 
 [package.dependencies]
 celery = ">=4.4,<5.0"
+
+[[package]]
+name = "django-colorfield"
+version = "0.3.2"
+description = "simple color field for your models with a nice color-picker in the admin-interface."
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
+name = "django-flat-responsive"
+version = "2.0"
+description = "An extension for Django admin that makes interface mobile friendly."
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
+name = "django-flat-theme"
+version = "1.1.4"
+description = "A flat theme for Django admin interface. Modern, fresh, simple."
+category = "main"
+optional = false
+python-versions = "*"
 
 [[package]]
 name = "django-timezone-field"
@@ -712,7 +750,7 @@ testing = ["pytest (>=3.5,<3.7.3 || >3.7.3)", "pytest-checkdocs (>=1.2.3)", "pyt
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "827b254fd18165e546777b812dfed43389cda27e15dd75d54eda3d4330fcb268"
+content-hash = "89b8a7de2484656784f1bc5a6a30a5da7f2a5c977409464f2579345f990a90c5"
 
 [metadata.files]
 amqp = [
@@ -765,6 +803,10 @@ django = [
     {file = "Django-3.0.10-py3-none-any.whl", hash = "sha256:313d0b8f96685e99327785cc600a5178ca855f8e6f4ed162e671e8c3cf749739"},
     {file = "Django-3.0.10.tar.gz", hash = "sha256:2d14be521c3ae24960e5e83d4575e156a8c479a75c935224b671b1c6e66eddaf"},
 ]
+django-admin-interface = [
+    {file = "django-admin-interface-0.14.0.tar.gz", hash = "sha256:36c8c72603cdbb2217f90915a2e0a6a3c926a68348c136280c723feeb32a3fd8"},
+    {file = "django_admin_interface-0.14.0-py3-none-any.whl", hash = "sha256:0665febca493c0c00a788770cee82845cb3989601d735de060ef91a3ded05e36"},
+]
 django-celery-beat = [
     {file = "django-celery-beat-2.0.0.tar.gz", hash = "sha256:fdf1255eecfbeb770c6521fe3e69989dfc6373cd5a7f0fe62038d37f80f47e48"},
     {file = "django_celery_beat-2.0.0-py2.py3-none-any.whl", hash = "sha256:fe0b2a1b31d4a6234fea4b31986ddfd4644a48fab216ce1843f3ed0ddd2e9097"},
@@ -772,6 +814,16 @@ django-celery-beat = [
 django-celery-results = [
     {file = "django_celery_results-1.2.1-py2.py3-none-any.whl", hash = "sha256:a29ab580f0e38c66c39f51cc426bbdbb2a391b8cc0867df9dea748db2c961db2"},
     {file = "django_celery_results-1.2.1.tar.gz", hash = "sha256:e390f70cc43bbc2cd7c8e4607dc29ab6211a2ab968f93677583f0160921f670c"},
+]
+django-colorfield = [
+    {file = "django-colorfield-0.3.2.tar.gz", hash = "sha256:f5dde281f4db8871eb5845aee614b4f1a47e7fd5b20476238793f519cd7bdf41"},
+    {file = "django_colorfield-0.3.2-py2-none-any.whl", hash = "sha256:e435ec31712f5e8b955cc7633aef1e49cc3b409c21dfcefeb2f6ef0e1cb69533"},
+]
+django-flat-responsive = [
+    {file = "django-flat-responsive-2.0.tar.gz", hash = "sha256:451caa2700c541b52fb7ce2d34d3d8dee9e980cf29f5463bc8a8c6256a1a6474"},
+]
+django-flat-theme = [
+    {file = "django-flat-theme-1.1.4.tar.gz", hash = "sha256:6b522d8c2b5a8228b30947fb002eff2868da076e9beacf3e798410e5c1a2d849"},
 ]
 django-timezone-field = [
     {file = "django-timezone-field-4.0.tar.gz", hash = "sha256:7e3620fe2211c2d372fad54db8f86ff884098d018d56fda4dca5e64929e05ffc"},

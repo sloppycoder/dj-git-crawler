@@ -32,7 +32,11 @@ LOGGING = {
     },
 }
 
+X_FRAME_OPTIONS = "SAMEORIGIN"
+
 INSTALLED_APPS = [
+    "admin_interface",
+    "colorfield",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
