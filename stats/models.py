@@ -1,4 +1,3 @@
-import io
 from configparser import ConfigParser
 
 from django.db import models
@@ -29,7 +28,7 @@ class ConfigEntry(models.Model):
         if entry is None:
             return None
         conf = ConfigParser()
-        conf.read_file(io.StringIO(entry.ini))
+        conf.read_string(entry.ini)
         return conf
 
     @staticmethod
