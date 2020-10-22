@@ -35,6 +35,7 @@ def save_stats(stats, file_name):
         json.dump(stats, f, sort_keys=True, indent=4)
 
     with open(f"{file_name}.csv", "w") as out_f:
+        out_f.write("bucket,repo,key,value\n")
         for k1 in stats.keys():
             for k2 in stats[k1].keys():
                 for k3 in stats[k1][k2].keys():

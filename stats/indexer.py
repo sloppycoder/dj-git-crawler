@@ -194,12 +194,15 @@ def enumerate_gitlab_projects(section):
 
 
 def get_repo_stats(repo_path):
-    repo_stats = {"ext": {}, "base_path": {}}
+    repo_stats = {"ext": {}, "base_path": {}, "commits": {}}
     print(f"scanning repo {repo_path}")
 
     try:
         for commit in RepositoryMining(repo_path).traverse_commits():
+            incr(repo_stats, "commits", "total")
+
             if commit.merge:
+                incr(repo_stats, "commits", "merge")
                 continue
 
             for mod in commit.modifications:
@@ -207,17 +210,17 @@ def get_repo_stats(repo_path):
                 if file_path is None:
                     file_path = mod.old_path
 
-                if should_ignore_path(file_path):
+                if should_ignore_path(mod.filename):
                     continue
+
+                # file at root directory just use "/" as base_path
+                base_path = file_path.split("/")[0] if file_path.find("/") > 0 else "/"
+                incr(repo_stats, "base_path", base_path)
 
                 _, ext = splitext(mod.filename)
                 incr(repo_stats, "ext", ext)
                 incr(repo_stats, "ext", ext, "added", mod.added)
                 incr(repo_stats, "ext", ext, "removed", mod.added)
-
-                # file at root directory just use "/" as base_path
-                base_path = file_path.split("/")[0] if file_path.find("/") > 0 else "/"
-                incr(repo_stats, "base_path", base_path)
 
                 if mod.change_type not in [
                     ModificationType.ADD,
