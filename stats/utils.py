@@ -8,7 +8,8 @@ IGNORE_PATTERNS = [
     re.compile(
         "^(vendor|Pods|target|YoutuOCWrapper|vos-app-protection|vos-processor|\\.idea|\\.vscode)/."
     ),
-    re.compile(".*\\.(jar|pbxproj|lock|bk|bak|backup|class)$"),
+    re.compile("^.*(xcodeproj|xcworkspace)/."),
+    re.compile(".*\\.(jar|pbxproj|lock|bk|bak|backup|class|swp|sum)$"),
 ]
 
 GIT_REPO_PATTERN = re.compile("^(http://|https://|ssh://|git@).*.\\.git$")

@@ -24,6 +24,8 @@ def test_ignore_patterns():
     assert should_ignore_path("target/output/pom.xml")
     # backkup files
     assert should_ignore_path("src/pom.xml.bak")
+    # go module
+    assert should_ignore_path("go.sum")
 
     assert not should_ignore_path("src/main/my/company/package/Application.java")
     assert not should_ignore_path("src/resources/application.yaml")
