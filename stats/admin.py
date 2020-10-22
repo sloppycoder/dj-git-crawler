@@ -47,6 +47,9 @@ admin.site.unregister(IntervalSchedule)
 #  admin.site.unregister(PeriodicTask)
 admin.site.unregister(SolarSchedule)
 
+from admin_interface.models import Theme
+admin.site.unregister(Theme)
+
 
 #
 # End of unregister other models hack
