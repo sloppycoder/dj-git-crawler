@@ -203,6 +203,9 @@ def get_repo_stats(repo_path):
                 continue
 
             for mod in commit.modifications:
+                if should_ignore_path(mod.filename):
+                    continue
+
                 _, ext = splitext(mod.filename)
                 incr(repo_stats, "ext", ext)
                 incr(repo_stats, "ext", ext, "added", mod.added)
