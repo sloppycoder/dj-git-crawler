@@ -1,0 +1,8 @@
+[Unit]
+Description=Git crawler celery worker
+
+[Service]
+ExecStart=/home/gitcrawler/git-crawler/venv/bin/celery -A stats worker --beat --scheduler django --concurrency 2 --logfile=worker.log
+WorkingDirectory=/home/gitcrawler/git-crawler
+Restart=always
+

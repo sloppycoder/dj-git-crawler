@@ -1,0 +1,7 @@
+[Unit]
+Description=Git crawler application
+
+[Service]
+ExecStart=/bin/sh -c '/home/gitcrawler/git-crawler/venv/bin/python manage.py runserver 0.0.0.0:8000 > /home/lee/Projects/git/dj-git-crawler/runserver.log 2>&1 '
+WorkingDirectory=/home/gitcrawler/git-crawler
+Restart=always

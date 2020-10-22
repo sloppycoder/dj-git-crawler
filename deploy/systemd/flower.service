@@ -1,0 +1,8 @@
+[Unit]
+Description=Git crawler celery monitor
+
+[Service]
+ExecStart=/home/gitcrawler/git-crawler/venv/bin/bin/flower -A stats --port=8001
+WorkingDirectory=/home/gitcrawler/git-crawler
+Restart=always
+
