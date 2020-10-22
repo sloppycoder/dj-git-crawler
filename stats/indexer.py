@@ -203,17 +203,17 @@ def get_repo_stats(repo_path):
                 continue
 
             for mod in commit.modifications:
-                if should_ignore_path(mod.filename):
+                file_path = mod.new_path
+                if file_path is None:
+                    file_path = mod.old_path
+
+                if should_ignore_path(file_path):
                     continue
 
                 _, ext = splitext(mod.filename)
                 incr(repo_stats, "ext", ext)
                 incr(repo_stats, "ext", ext, "added", mod.added)
                 incr(repo_stats, "ext", ext, "removed", mod.added)
-
-                file_path = mod.new_path
-                if file_path is None:
-                    file_path = mod.old_path
 
                 # file at root directory just use "/" as base_path
                 base_path = file_path.split("/")[0] if file_path.find("/") > 0 else "/"
