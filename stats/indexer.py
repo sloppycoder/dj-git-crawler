@@ -3,14 +3,14 @@ import traceback
 from fnmatch import fnmatch
 from configparser import ConfigParser
 from datetime import datetime, timedelta
-from os.path import expanduser
+from os.path import expanduser, splitext
 
 from git import InvalidGitRepositoryError, GitCommandError
 from gitlab import Gitlab, GitlabGetError, GitlabAuthenticationError
-from pydriller import GitRepository, RepositoryMining
+from pydriller import GitRepository, RepositoryMining, ModificationType
 
 from .models import Author, AuthorStat, Repository, Commit, ConfigEntry, EPOCH_ZERO
-from .utils import should_ignore_path, is_remote_git_url
+from .utils import should_ignore_path, is_remote_git_url, save_stats
 
 DEFAULT_CONFIG = "crawler.ini"
 
@@ -191,3 +191,69 @@ def enumerate_gitlab_projects(section):
     except GitlabGetError as e:
         print(f"gitlab search {group} error {type(e)} => {e}")
     return []
+
+
+def get_repo_stats(repo_path):
+    repo_stats = {"ext": {}, "base_path": {}}
+    print(f"scanning repo {repo_path}")
+
+    try:
+        for commit in RepositoryMining(repo_path).traverse_commits():
+            if commit.merge:
+                continue
+
+            for mod in commit.modifications:
+                _, ext = splitext(mod.filename)
+                incr(repo_stats, "ext", ext)
+                incr(repo_stats, "ext", ext, "added", mod.added)
+                incr(repo_stats, "ext", ext, "removed", mod.added)
+
+                file_path = mod.new_path
+                if file_path is None:
+                    file_path = mod.old_path
+
+                # file at root directory just use "/" as base_path
+                base_path = file_path.split("/")[0] if file_path.find("/") > 0 else "/"
+                incr(repo_stats, "base_path", base_path)
+
+                if mod.change_type not in [
+                    ModificationType.ADD,
+                    ModificationType.DELETE,
+                    ModificationType.MODIFY,
+                    ModificationType.RENAME,
+                ]:
+                    print(
+                        f"**** commit {commit.hash} of {repo_path}:{file_path} is weird, "
+                        f"change_type = {mod.change_type} ****"
+                    )
+    except GitCommandError as e:
+        print(f"Exception get_repo_stats {repo_path} => {str(e)}\n{e}")
+
+    return repo_stats
+
+
+def analyze_all_repositories(report_file, conf=None):
+    """
+    run some stats on file path and extention on local repositories
+    to gather data on what files and path should be ignored
+    """
+    all_stats = {}
+    for is_local, repo_info in enumerate_repositories_by_config(conf):
+        repo_path = repo_info["repo_url"]
+        all_stats[repo_path] = get_repo_stats(repo_path)
+    if report_file and len(report_file) > 3:
+        save_stats(all_stats, report_file)
+    return all_stats
+
+
+def incr(stats, category, bucket, key="count", by=1):
+    try:
+        my_dict = stats[category][bucket]
+    except KeyError:
+        my_dict = {}
+        stats[category][bucket] = my_dict
+
+    try:
+        my_dict[key] += by
+    except KeyError:
+        my_dict[key] = by

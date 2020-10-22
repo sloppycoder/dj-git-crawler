@@ -16,8 +16,6 @@ app.autodiscover_tasks()
 
 @app.task(bind=True, name="discover_repositories")
 def discover_repositories_task(self, **kwargs):
-    # import any of these at the beginning of the file will
-    # get an "Apps aren't loaded yet" error
     from stats.indexer import register_git_repositories
 
     register_git_repositories()
@@ -25,8 +23,6 @@ def discover_repositories_task(self, **kwargs):
 
 @app.task(bind=True, name="index_repository")
 def index_repository_task(self, **kwargs):
-    # import any of these at the beginning of the file will
-    # get an "Apps aren't loaded yet" error
     from stats.indexer import index_repository
 
     return index_repository(kwargs["repo_id"])
@@ -34,9 +30,6 @@ def index_repository_task(self, **kwargs):
 
 @app.task(bind=True, name="gather_author_stats")
 def gather_author_stats_task(self, group_output):
-    # the group_output is a parameter passed in by the chord
-    # which contains the result of the task group executed
-    # prior to invoke this task
     from stats.collector import populate_author_stats
 
     populate_author_stats()
@@ -44,8 +37,6 @@ def gather_author_stats_task(self, group_output):
 
 @app.task(bind=True, name="index_all_repositories")
 def index_all_repositories_task(self, **kwargs):
-    # import any of these at the beginning of the file will
-    # get an "Apps aren't loaded yet" error
     from stats.indexer import repositories_for_indexing
 
     # chord allows a task to be executed after all
@@ -57,6 +48,14 @@ def index_all_repositories_task(self, **kwargs):
             for repo in repositories_for_indexing(cut_off=cut_off)
         ]
     )(gather_author_stats_task.s())
+
+
+@app.task(bind=True, name="analyze_all_repositories")
+def analyze_all_repositories_task(self, **kwargs):
+    from stats.indexer import analyze_all_repositories
+
+    timestamp = datetime.now().strftime("%y%m%d_%H%M%S")
+    analyze_all_repositories(f"tmp/stats_{timestamp}")
 
 
 @app.on_after_finalize.connect
