@@ -2,4 +2,5 @@
 max-line-length = 90
 per-file-ignores =
     stats/admin.py:E402,E203
+    stats/utils.py:E501
     tests/settings.py:F403,F405

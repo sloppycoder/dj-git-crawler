@@ -48,6 +48,7 @@ admin.site.unregister(IntervalSchedule)
 admin.site.unregister(SolarSchedule)
 
 from admin_interface.models import Theme
+
 admin.site.unregister(Theme)
 
 
