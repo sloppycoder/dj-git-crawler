@@ -17,9 +17,18 @@ def test_ignore_patterns():
     assert should_ignore_path("Pods/Firebase/CoreOnly/Sources/Firebase.h")
     # yarn lock
     assert should_ignore_path("yarn.lock")
+    # IDE/Editor files
+    assert should_ignore_path(".vscode/settings.json")
+    assert should_ignore_path(".idea/misc.xml")
+    # build output
+    assert should_ignore_path("target/output/pom.xml")
+    # backkup files
+    assert should_ignore_path("src/pom.xml.bak")
 
     assert not should_ignore_path("src/main/my/company/package/Application.java")
     assert not should_ignore_path("src/resources/application.yaml")
+    assert not should_ignore_path("idea/misc.xml")
+    assert not should_ignore_path("vscode/settings.json")
 
 
 def test_load_crawler_conf(crawler_conf):
