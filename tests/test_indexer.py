@@ -3,11 +3,11 @@ import os
 import pytest
 
 from stats.indexer import (
+    DEFAULT_CONFIG,
     index_repository,
     locate_author,
     register_git_repositories,
     repositories_for_indexing,
-    DEFAULT_CONFIG,
     enumerate_gitlab_projects,
 )
 from stats.models import ConfigEntry

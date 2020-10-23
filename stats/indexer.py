@@ -3,14 +3,15 @@ import traceback
 from fnmatch import fnmatch
 from configparser import ConfigParser
 from datetime import datetime, timedelta
-from os.path import expanduser, splitext
+from os.path import expanduser
 
 from git import InvalidGitRepositoryError, GitCommandError
 from gitlab import Gitlab, GitlabGetError, GitlabAuthenticationError
-from pydriller import GitRepository, RepositoryMining, ModificationType
+from pydriller import GitRepository, RepositoryMining
 
 from .models import Author, AuthorStat, Repository, Commit, ConfigEntry, EPOCH_ZERO
-from .utils import should_ignore_path, is_remote_git_url, save_stats
+from .analyzer import update_commit_stats
+from .utils import is_remote_git_url
 
 DEFAULT_CONFIG = "crawler.ini"
 
@@ -104,25 +105,6 @@ def index_repository(repo_id) -> int:
     return count
 
 
-def update_commit_stats(git_commit, modifications):
-    # TODO: evaluate how to update the stats carefully
-    added, removed, nloc = 0, 0, 0
-    for mod in modifications:
-        if mod.change_type is None:
-            continue
-        file_path = mod.old_path or mod.new_path
-        if should_ignore_path(file_path):
-            continue
-        added += mod.added
-        removed += mod.removed
-        nloc += mod.nloc if mod.nloc is not None else 0
-    git_commit.lines_added = added
-    git_commit.lines_removed = removed
-    git_commit.lines_of_code = nloc
-    git_commit.is_merge = added == 0 and removed == 0
-    return git_commit
-
-
 def repositories_for_indexing(status=Repository.RepoStatus.READY, cut_off=None) -> int:
     # by default set cut_off time to 15 mins before
     cut_off = cut_off or datetime.now().astimezone() - timedelta(minutes=15)
@@ -134,6 +116,25 @@ def repositories_for_indexing(status=Repository.RepoStatus.READY, cut_off=None) 
         yield repo
     print(f"scanned {count} repositories")
     return count
+
+
+def enumerate_gitlab_projects(section):
+    xfilter = section.get("filter", "*")
+    group = section.get("group")
+    url = section.get("gitlab_url", "https://www.gitlab.com")
+    token = section.get("gitlab_token")
+    ssl_verify = section.get("ssl_verify", "yes") == "yes"
+    try:
+        gl = Gitlab(url, private_token=token, ssl_verify=ssl_verify)
+        projects = gl.groups.get(group).projects.list(
+            include_subgroups=True, as_list=False
+        )
+        return [proj for proj in projects if fnmatch(proj.path_with_namespace, xfilter)]
+    except GitlabAuthenticationError:
+        print(f"authentication error {url}, {token}, {ssl_verify}")
+    except GitlabGetError as e:
+        print(f"gitlab search {group} error {type(e)} => {e}")
+    return []
 
 
 def enumerate_repositories_by_config(conf):
@@ -172,94 +173,3 @@ def enumerate_repositories_by_config(conf):
                 params["name"] = proj.path_with_namespace
                 params["repo_url"] = proj.ssh_url_to_repo
                 yield is_local_repo, params
-
-
-def enumerate_gitlab_projects(section):
-    xfilter = section.get("filter", "*")
-    group = section.get("group")
-    url = section.get("gitlab_url", "https://www.gitlab.com")
-    token = section.get("gitlab_token")
-    ssl_verify = section.get("ssl_verify", "yes") == "yes"
-    try:
-        gl = Gitlab(url, private_token=token, ssl_verify=ssl_verify)
-        projects = gl.groups.get(group).projects.list(
-            include_subgroups=True, as_list=False
-        )
-        return [proj for proj in projects if fnmatch(proj.path_with_namespace, xfilter)]
-    except GitlabAuthenticationError:
-        print(f"authentication error {url}, {token}, {ssl_verify}")
-    except GitlabGetError as e:
-        print(f"gitlab search {group} error {type(e)} => {e}")
-    return []
-
-
-def get_repo_stats(repo_path):
-    repo_stats = {"ext": {}, "base_path": {}, "commits": {}}
-    print(f"scanning repo {repo_path}")
-
-    try:
-        for commit in RepositoryMining(repo_path).traverse_commits():
-            incr(repo_stats, "commits", "total")
-
-            if commit.merge:
-                incr(repo_stats, "commits", "merge")
-                continue
-
-            for mod in commit.modifications:
-                file_path = mod.new_path
-                if file_path is None:
-                    file_path = mod.old_path
-
-                if should_ignore_path(mod.filename):
-                    continue
-
-                # file at root directory just use "/" as base_path
-                base_path = file_path.split("/")[0] if file_path.find("/") > 0 else "/"
-                incr(repo_stats, "base_path", base_path)
-
-                _, ext = splitext(mod.filename)
-                incr(repo_stats, "ext", ext)
-                incr(repo_stats, "ext", ext, "added", mod.added)
-                incr(repo_stats, "ext", ext, "removed", mod.added)
-
-                if mod.change_type not in [
-                    ModificationType.ADD,
-                    ModificationType.DELETE,
-                    ModificationType.MODIFY,
-                    ModificationType.RENAME,
-                ]:
-                    print(
-                        f"**** commit {commit.hash} of {repo_path}:{file_path} is weird, "
-                        f"change_type = {mod.change_type} ****"
-                    )
-    except GitCommandError as e:
-        print(f"Exception get_repo_stats {repo_path} => {str(e)}\n{e}")
-
-    return repo_stats
-
-
-def analyze_all_repositories(report_file, conf=None):
-    """
-    run some stats on file path and extention on local repositories
-    to gather data on what files and path should be ignored
-    """
-    all_stats = {}
-    for is_local, repo_info in enumerate_repositories_by_config(conf):
-        repo_path = repo_info["repo_url"]
-        all_stats[repo_path] = get_repo_stats(repo_path)
-    if report_file and len(report_file) > 3:
-        save_stats(all_stats, report_file)
-    return all_stats
-
-
-def incr(stats, category, bucket, key="count", by=1):
-    try:
-        my_dict = stats[category][bucket]
-    except KeyError:
-        my_dict = {}
-        stats[category][bucket] = my_dict
-
-    try:
-        my_dict[key] += by
-    except KeyError:
-        my_dict[key] = by

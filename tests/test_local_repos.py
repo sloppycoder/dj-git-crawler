@@ -1,6 +1,6 @@
 from configparser import ConfigParser
 
-from stats.indexer import analyze_all_repositories
+from stats.analyzer import analyze_all_repositories
 
 
 def test_local_repos(crawler_conf):
