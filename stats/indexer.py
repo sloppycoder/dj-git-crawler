@@ -7,6 +7,7 @@ from os.path import expanduser
 
 from git import InvalidGitRepositoryError, GitCommandError
 from gitlab import Gitlab, GitlabGetError, GitlabAuthenticationError
+from github import Github, BadCredentialsException
 from pydriller import GitRepository, RepositoryMining
 
 from .models import Author, AuthorStat, Repository, Commit, ConfigEntry, EPOCH_ZERO
@@ -121,7 +122,7 @@ def repositories_for_indexing(status=Repository.RepoStatus.READY, cut_off=None) 
 def enumerate_gitlab_projects(section):
     xfilter = section.get("filter", "*")
     group = section.get("group")
-    url = section.get("gitlab_url", "https://www.gitlab.com")
+    url = section.get("gitlab_url")
     token = section.get("gitlab_token")
     ssl_verify = section.get("ssl_verify", "yes") == "yes"
     try:
@@ -134,6 +135,21 @@ def enumerate_gitlab_projects(section):
         print(f"authentication error {url}, {token}, {ssl_verify}")
     except GitlabGetError as e:
         print(f"gitlab search {group} error {type(e)} => {e}")
+    return []
+
+
+def enumerate_github_projects(section):
+    xfilter = section.get("filter", "*")
+    query = section.get("query")
+    token = section.get("access_token")
+    try:
+        gh = Github(token)
+        result = gh.search_repositories(query=query)
+        return [proj for proj in result if fnmatch(proj.full_name, xfilter)]
+    except BadCredentialsException as e:
+        print(f"gitlab search {query} error {type(e)} => {e}")
+    except Exception as e:
+        print(f"gitlab search {query} error {type(e)} => {e}")
     return []
 
 
@@ -169,7 +185,14 @@ def enumerate_repositories_by_config(conf):
                     print(f"exception when opening git repository at {path} => {e}")
         else:
             # remote project, get project info from gitlab
-            for proj in enumerate_gitlab_projects(section):
-                params["name"] = proj.path_with_namespace
-                params["repo_url"] = proj.ssh_url_to_repo
-                yield is_local_repo, params
+            server_type = section.get("gitserver_type", "github")
+            if server_type == "gitlab":
+                for proj in enumerate_gitlab_projects(section):
+                    params["name"] = proj.path_with_namespace
+                    params["repo_url"] = proj.ssh_url_to_repo
+                    yield is_local_repo, params
+            if server_type == "github":
+                for proj in enumerate_github_projects(section):
+                    params["name"] = proj.full_name
+                    params["repo_url"] = proj.git_url
+                    yield is_local_repo, params

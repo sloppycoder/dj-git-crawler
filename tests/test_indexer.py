@@ -9,6 +9,7 @@ from stats.indexer import (
     register_git_repositories,
     repositories_for_indexing,
     enumerate_gitlab_projects,
+    enumerate_github_projects,
 )
 from stats.models import ConfigEntry
 from .utils import (
@@ -73,14 +74,21 @@ def test_enumerate_gitlab_projects(crawler_conf):
     assert "hello" in projs[0].path_with_namespace
 
 
+def test_enumerate_github_projects(crawler_conf):
+    projs = enumerate_github_projects(crawler_conf["project.github"])
+    names = [p.full_name for p in projs]
+    assert len(projs) == 2
+    assert "sloppycoder/bank-demo-app" in names
+
+
 def run_scan_repositories():
     count = 0
     for repo in repositories_for_indexing():
         print(f"{repo.name} => {repo.repo_url}, {repo.gitweb_base_url}")
-        assert "https://gitlab.com" in repo.gitweb_base_url
+        assert repo.gitweb_base_url is not None
         assert "$h" not in repo.gitweb_base_url
         count += 1
-    assert count == 3
+    assert count == 5
 
 
 def run_index_local_repository():
