@@ -9,4 +9,7 @@ cp *.service ~/.config/systemd/user/.
 systemctl --user start gitcrawler
 systemctl --user start celery
 systemctl --user start flower
+
+# if the processes get killed after logout, run this as root
+loginctl --enable-linger <login_name>
 ```

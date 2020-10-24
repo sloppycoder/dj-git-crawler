@@ -69,6 +69,9 @@ docker build -t <your image name>:<your_tag> .
 
 ```
 
+## Deploy using systemd
+Folllow [instructions here](deploy/systemd/README.md) to deploy the processes using systemd user mode.
+
 ## Development
 More to come, please watch this space. 
 
