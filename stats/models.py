@@ -3,6 +3,9 @@ from configparser import ConfigParser
 from django.db import models
 from datetime import datetime, timezone
 
+from .utils import is_remote_git_url
+
+
 EPOCH_ZERO = datetime(1970, 1, 1, tzinfo=timezone.utc)
 
 
@@ -84,6 +87,22 @@ class Author(models.Model):
     def __str__(self):
         return f"{self.name} <{self.email}>"
 
+    @staticmethod
+    def locate(name: str, email: str, create: bool = True):
+        author = Author.objects.filter(email=email).first()
+        # create new author if email does not exist
+        if author is None:
+            if create:
+                stats = AuthorStat()
+                stats.save()
+                author = Author(name=name, email=email, is_alias=False, stats=stats)
+                author.save()
+                print(f"created new {author}")
+            return author
+        else:
+            # if author is an alias, return the original
+            return author.original if author.is_alias else author
+
 
 class Repository(models.Model):
     class Meta:
@@ -114,6 +133,28 @@ class Repository(models.Model):
         if last_commit_dt is not None:
             self.last_commit_at = last_commit_dt
         self.save()
+
+    def all_commit_hash(self):
+        """ return hash of all commits for a repo """
+        all_commits = Commit.objects.filter(repo=self).all()
+        return dict([(c.sha, c.author.id) for c in all_commits])
+
+    @staticmethod
+    def register(name, repo_url, repo_type, gitweb_base_url):
+        repo = Repository.objects.filter(name=name).first()
+        if repo is None:
+            repo = Repository(
+                name=name,
+                is_remote=is_remote_git_url(repo_url),
+                repo_url=repo_url,
+                gitweb_base_url=gitweb_base_url,
+            )
+            print(f"registering new repo {name} => {name}")
+        repo.type = repo_type
+        if gitweb_base_url:
+            repo.gitweb_base_url = gitweb_base_url.replace("$name", repo.name)
+        repo.save()
+        return repo
 
 
 class Commit(models.Model):

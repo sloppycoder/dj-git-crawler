@@ -5,13 +5,12 @@ import pytest
 from stats.indexer import (
     DEFAULT_CONFIG,
     index_repository,
-    locate_author,
     register_git_repositories,
     repositories_for_indexing,
     enumerate_gitlab_projects,
     enumerate_github_projects,
 )
-from stats.models import ConfigEntry
+from stats.models import ConfigEntry, Author
 from .utils import (
     author_count,
     create_some_commit,
@@ -26,16 +25,16 @@ def test_find_author():
     total = author_count()
 
     # set create flag to False won't create any author
-    dev0 = locate_author("dev1", "dev1@banana.com", create=False)
+    dev0 = Author.locate("dev1", "dev1@banana.com", create=False)
     assert dev0 is None
     assert author_count() == total
 
     # create first author
-    dev1 = locate_author("dev1", "dev1@banana.com")
+    dev1 = Author.locate("dev1", "dev1@banana.com")
     assert dev1 is not None
     assert author_count() == total + 1
 
-    dev2 = locate_author("dev1", "dev1@banana.org")
+    dev2 = Author.locate("dev1", "dev1@banana.org")
     assert dev2 is not None
     assert author_count() == total + 2
 
@@ -44,7 +43,7 @@ def test_find_author():
     dev2.original = dev1
     dev2.save()
 
-    dev3 = locate_author("dev1", "dev1@banana.org")
+    dev3 = Author.locate("dev1", "dev1@banana.org")
     assert dev3.email == dev1.email
 
     # cleanup what we created during testing

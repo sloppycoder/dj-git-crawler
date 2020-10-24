@@ -10,59 +10,15 @@ from gitlab import Gitlab, GitlabGetError, GitlabAuthenticationError
 from github import Github, BadCredentialsException
 from pydriller import GitRepository, RepositoryMining
 
-from .models import Author, AuthorStat, Repository, Commit, ConfigEntry, EPOCH_ZERO
+from .models import Author, Repository, Commit, ConfigEntry, EPOCH_ZERO
 from .analyzer import update_commit_stats
-from .utils import is_remote_git_url
 
 DEFAULT_CONFIG = "crawler.ini"
 
 
-def all_hash_for_repo(repo):
-    return dict([(c.sha, c.author.id) for c in Commit.objects.filter(repo=repo).all()])
-
-
-def register_repository(name, repo_url, repo_type, gitweb_base_url) -> Repository:
-    repo = Repository.objects.filter(name=name).first()
-    if repo is None:
-        repo = Repository(
-            name=name,
-            is_remote=is_remote_git_url(repo_url),
-            repo_url=repo_url,
-            gitweb_base_url=gitweb_base_url,
-        )
-        print(f"registering new repo {name} => {name}")
-    repo.type = repo_type
-    if gitweb_base_url:
-        repo.gitweb_base_url = gitweb_base_url.replace("$name", repo.name)
-    repo.save()
-    return repo
-
-
 def register_git_repositories(conf: ConfigParser = None) -> None:
     for is_local_repp, params in enumerate_repositories_by_config(conf):
-        register_repository(**params)
-
-
-def locate_author(name: str, email: str, create: bool = True) -> Author:
-    level = 0
-    author = Author.objects.filter(email=email).first()
-    # create new author if email does not exist
-    if author is None:
-        if create:
-            stats = AuthorStat()
-            stats.save()
-            author = Author(name=name, email=email, is_alias=False, stats=stats)
-            author.save()
-            print(f"created new {author}")
-        return author
-    # recursion to find the top level author
-    while True:
-        if author and not author.is_alias:
-            return author
-        level += 1
-        if level > 10:
-            raise Exception("too many alias levels, please simplify the data")
-        author = author.original
+        Repository.register(**params)
 
 
 def index_repository(repo_id) -> int:
@@ -71,7 +27,7 @@ def index_repository(repo_id) -> int:
 
     count = 0
     try:
-        old_commits = all_hash_for_repo(repo)
+        old_commits = repo.all_commit_hash()
         last_commit_dt = EPOCH_ZERO
 
         for commit in RepositoryMining(repo.repo_url).traverse_commits():
@@ -84,7 +40,7 @@ def index_repository(repo_id) -> int:
                 # print(f"Updating last_commit_dt to {last_commit_dt}")
 
             dev = commit.committer
-            author = locate_author(name=dev.name, email=dev.email)
+            author = Author.locate(name=dev.name, email=dev.email)
             git_commit = Commit(
                 sha=commit.hash,
                 message=commit.msg[:2048],  # some commits has super long message
