@@ -1,4 +1,5 @@
 import os
+import re
 
 import pytest
 
@@ -73,8 +74,11 @@ def test_enumerate_gitlab_projects(crawler_conf):
     assert len(projs) == 2
     assert "hello" in projs[0].path_with_namespace
 
-@pytest.mark.skip("update username and token in test.ini before runing this test")
+
+@pytest.mark.xfail(raises=KeyError)
 def test_enumerate_bitbucket_projects(crawler_conf):
+    # this test needs username and access token be present
+    # in test.ini to pass
     projs = enumerate_bitbucket_projects(crawler_conf["project.innersource"])
     names = [p["slug"] for p in projs]
     assert len(projs) == 4
@@ -91,10 +95,12 @@ def test_enumerate_github_projects(crawler_conf):
 def run_scan_repositories():
     count = 0
     for repo in repositories_for_indexing():
-        print(f"{repo.name} => {repo.repo_url}, {repo.gitweb_base_url}")
-        assert repo.gitweb_base_url is not None
-        assert "$h" not in repo.gitweb_base_url
-        count += 1
+        web_url = repo.gitweb_base_url
+        print(f"{repo.name} => {repo.repo_url}, {web_url}")
+        assert web_url is not None
+        assert "$h" not in web_url
+        if re.match(r".*git(hub|lab)\.com/.*", web_url):
+            count += 1
     # should be 5 without innersource, add 4 with innersource
     assert count == 5
 
