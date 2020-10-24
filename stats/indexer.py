@@ -1,4 +1,5 @@
 import glob
+import re
 import traceback
 from fnmatch import fnmatch
 from configparser import ConfigParser
@@ -8,6 +9,8 @@ from os.path import expanduser
 from git import InvalidGitRepositoryError, GitCommandError
 from gitlab import Gitlab, GitlabGetError, GitlabAuthenticationError
 from github import Github, BadCredentialsException
+from requests import HTTPError
+from atlassian import Bitbucket
 from pydriller import GitRepository, RepositoryMining
 
 from .models import Author, Repository, Commit, ConfigEntry, EPOCH_ZERO
@@ -55,8 +58,8 @@ def index_repository(repo_id) -> int:
         print(f"Indexed repository {repo.name}")
     # TODO: need to narrow this down
     except Exception as e:
-        print(f"Exception indexing repository {repo.name} => {str(e)}\n{e}")
         exc = traceback.format_exc()
+        print(f"Exception indexing repository {repo.name} => {str(e)}\n{exc}")
         repo.set_status(status=repo.RepoStatus.ERROR, errmsg=exc)
 
     return count
@@ -103,9 +106,27 @@ def enumerate_github_projects(section):
         result = gh.search_repositories(query=query)
         return [proj for proj in result if fnmatch(proj.full_name, xfilter)]
     except BadCredentialsException as e:
-        print(f"gitlab search {query} error {type(e)} => {e}")
+        print(f"authentication error => {e}")
     except Exception as e:
         print(f"gitlab search {query} error {type(e)} => {e}")
+    return []
+
+
+def enumerate_bitbucket_projects(section):
+    xfilter = section.get("filter", "*")
+    query = section.get("query")
+    url = section.get("bitbucket_url")
+    username = section.get("username")
+    token = section.get("access_token")
+    try:
+        result = []
+        bb = Bitbucket(url=url, username=username, password=token)
+        result = bb.repo_list(project_key=query)
+        return [repo for repo in result if fnmatch(repo["slug"], xfilter)]
+    except HTTPError as e:
+        print(f"HTTPError => {e}")
+    except Exception as e:
+        print(f"bitbucket repo_list {query} error {type(e)} => {e}")
     return []
 
 
@@ -115,10 +136,7 @@ def enumerate_repositories_by_config(conf):
 
     for key in [s for s in conf.sections() if s.find("project.") == 0]:
         section = conf[key]
-        params = {
-            "gitweb_base_url": section.get("gitweb_base_url"),
-            "repo_type": section.get("type", "UNKNOWN"),
-        }
+        params = {"repo_type": section.get("type", "UNKNOWN")}
 
         local_path = section.get("local_path")
         is_local_repo = local_path is not None
@@ -128,13 +146,15 @@ def enumerate_repositories_by_config(conf):
         if is_local_repo:
             # local repo, just scan the local paths
             xfilter = section.get("filter", "*")
+
             for path in glob.glob(f"{local_path}/{xfilter}", recursive=True):
                 try:
                     if GitRepository(path).total_commits() > 0:
                         repo_name = path.replace(local_path, "")
                         params["name"] = repo_name
                         params["repo_url"] = path
-                        yield is_local_repo, params
+                        params["gitweb_base_url"] = section.get("gitweb_base_url")
+                        yield False, params
                 except (InvalidGitRepositoryError, GitCommandError):
                     print(f"skipping non Git path {path}")
                 except Exception as e:
@@ -146,9 +166,28 @@ def enumerate_repositories_by_config(conf):
                 for proj in enumerate_gitlab_projects(section):
                     params["name"] = proj.path_with_namespace
                     params["repo_url"] = proj.ssh_url_to_repo
-                    yield is_local_repo, params
-            if server_type == "github":
+                    params["gitweb_base_url"] = proj.web_url
+                    yield True, params
+            elif server_type == "bitbucket":
+                for proj in enumerate_bitbucket_projects(section):
+                    # bitbucket api returns url in format of
+                    # ssh://git@innersource.blah.com/~user/some-stuff.git
+                    # transform to git@github.com:user/repo.git
+                    # otherwise pydrill can't process it
+                    link = [d for d in proj["links"]["clone"] if d["name"] == "ssh"][0]
+                    params["name"] = f"{proj['project']['key']}/{proj['slug']}"
+                    params["repo_url"] = re.sub(r"^ssh://(.*?)/", r"\1:", link["href"])
+                    params["gitweb_base_url"] = proj["links"]["self"][0]["href"]
+                    yield True, params
+            elif server_type == "github":
                 for proj in enumerate_github_projects(section):
+                    # github api returns git://github.com/sloppycoder/bank-demo.git
+                    # transform to git@github.com:user/repo.git
+                    # otherwise pydrill can't process it
+                    url = re.sub(r"^(git://)(.*?)/", r"git@\2:", proj.git_url)
                     params["name"] = proj.full_name
-                    params["repo_url"] = proj.git_url
-                    yield is_local_repo, params
+                    params["repo_url"] = url
+                    params["gitweb_base_url"] = proj.html_url
+                    yield True, params
+            else:
+                print(f"Unknow server_type = {server_type}, why?!")

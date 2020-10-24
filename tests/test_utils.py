@@ -42,7 +42,7 @@ def test_git_repo_patterns():
     assert is_remote_git_url("https://gitlab.com/someuser/some_repo.git")
     assert is_remote_git_url("http://myserver/something.git")
     assert is_remote_git_url("git@gitlab.com:user/repo.git")
-    assert is_remote_git_url("ssh://user@server.com/something/repo.git")
+    assert is_remote_git_url("ssh://git@innersource.accenture.com/~user1/stuff.git")
     # url does not end with ".git" are not considered valid
     assert not is_remote_git_url("https://gitlab.com/someuser")
     assert not is_remote_git_url("http://myserver/something")

@@ -9,6 +9,7 @@ from stats.indexer import (
     repositories_for_indexing,
     enumerate_gitlab_projects,
     enumerate_github_projects,
+    enumerate_bitbucket_projects,
 )
 from stats.models import ConfigEntry, Author
 from .utils import (
@@ -53,7 +54,7 @@ def test_find_author():
 
 
 @pytest.mark.django_db
-def test_register_git_repositories(crawler_conf):
+def test_index_all_repositories(crawler_conf):
     register_git_repositories(crawler_conf)
 
     # we should have 1 local repo and
@@ -72,6 +73,13 @@ def test_enumerate_gitlab_projects(crawler_conf):
     assert len(projs) == 2
     assert "hello" in projs[0].path_with_namespace
 
+@pytest.mark.skip("update username and token in test.ini before runing this test")
+def test_enumerate_bitbucket_projects(crawler_conf):
+    projs = enumerate_bitbucket_projects(crawler_conf["project.innersource"])
+    names = [p["slug"] for p in projs]
+    assert len(projs) == 4
+    assert "corp-archetype" in names
+
 
 def test_enumerate_github_projects(crawler_conf):
     projs = enumerate_github_projects(crawler_conf["project.github"])
@@ -87,6 +95,7 @@ def run_scan_repositories():
         assert repo.gitweb_base_url is not None
         assert "$h" not in repo.gitweb_base_url
         count += 1
+    # should be 5 without innersource, add 4 with innersource
     assert count == 5
 
 

@@ -199,13 +199,12 @@ class RepositoryAdmin(admin.ModelAdmin):
 
     def show_git_url(self, obj):
         url = obj.gitweb_base_url
-        if url and len(url) > 50:
-            display_url = f"{url[:26]}...{url[-24:]}"
-            return format_html(
-                "<a href='{url}'>{display_url}</a>", display_url=display_url, url=url
-            )
-        else:
+        if not url:
             return "no link available"
+        display_url = f"{url[:26]}...{url[-24:]}" if len(url) > 50 else url
+        return format_html(
+            "<a href='{url}'>{display_url}</a>", display_url=display_url, url=url
+        )
 
     show_git_url.short_description = "open Git repository"
 
@@ -281,15 +280,17 @@ class CommitAdmin(admin.ModelAdmin):
 
     def sha_url(self, obj):
         short_sha = obj.sha[:7]
-        url = obj.repo.gitweb_base_url
-        if url:
-            return format_html(
-                "<a href='{url}'>{display_url}</a>",
-                display_url=short_sha,
-                url=f"{url}/commit/{obj.sha}",
-            )
-        else:
+        base_url = obj.repo.gitweb_base_url
+        if not base_url:
             return short_sha
+        url = f"{base_url}/commit/{obj.sha}"
+        # hack: bitbucket url ends with /browse, we need to remove it before adding
+        url = url.replace("browse/commit", "commits")
+        return format_html(
+            "<a href='{url}'>{display_url}</a>",
+            display_url=short_sha,
+            url=url,
+        )
 
     sha_url.short_description = "Link to Git"
 
