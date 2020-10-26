@@ -3,7 +3,7 @@
     "python.linting.flake8Enabled": true,
     "python.linting.enabled": true,
     "python.formatting.provider": "black",
-    "python.pythonPath": "~/Library/Caches/pypoetry/virtualenvs/dj-git-crawler-SblIAdNh-py3.8",
+    "python.pythonPath": "${workspaceFolder}/.venv/bin/python",
     "editor.suggestSelection": "first",
     "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue",
     "python.languageServer": "Pylance",
