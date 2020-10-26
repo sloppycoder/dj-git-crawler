@@ -73,5 +73,34 @@ docker build -t <your image name>:<your_tag> .
 Folllow [instructions here](deploy/systemd/README.md) to deploy the processes using systemd user mode.
 
 ## Development
-More to come, please watch this space. 
+Install the editor and tools first.
+
+1. Install a python runtime, either 3.7 or 3.8 should work. 
+2. [Visual Studio Code](https://code.visualstudio.com/), with extentions [ms-python](https://marketplace.visualstudio.com/items?itemName=ms-python.python), [pylance](https://marketplace.visualstudio.com/items?itemName=ms-python.vscode-pylance) and [python-test-adapter](https://marketplace.visualstudio.com/items?itemName=LittleFoxTeam.vscode-python-test-adapter)
+3. [Poetry environment manager](https://python-poetry.org/docs/#:~:text=Poetry%20is%20a%20tool%20for,%2Fupdate)%20them%20for%20you.)
+
+Then clone this repo and run the tests
+
+```
+git clone <this_repo_url>
+
+poetry install
+
+pytest -s
+
+# open vscode and start hacking
+code .
+```
+
+The application requires PostgreSQL and Redis to run. The test cases only depends on Sqlite, so for local development experiement, sqlite should do the trick. Just make sure to modifying the [settings.py](crawler/settings.py) to change database adapter. Below are links to framework/libraries used.
+
+* The [Django](https://www.djangoproject.com/) framework, espically the [Django Admin Site](https://docs.djangoproject.com/en/3.1/ref/contrib/admin/) features.
+* [Pytest](https://docs.pytest.org/en/stable/), the most popular python test runner
+* Background job executor [Celery](https://docs.celeryproject.org/en/stable/getting-started/introduction.html)
+* [Flake8](https://flake8.pycqa.org/en/latest/manpage.html), a python linter
+* [Python API binding for Gitlab](https://pypi.org/project/python-gitlab/)
+* [Python API binding for Github](https://pypi.org/project/PyGithub/)
+* [Python API binding for Atlassian products](https://pypi.org/project/atlassian-python-api/)
+
+
 
