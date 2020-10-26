@@ -41,8 +41,8 @@ step 6: before run indexing on any repository, please add public key file [root/
 Install Python 3.8, create virtualenv and install dependencies
 ```
 # assume you have python 3.8 and pip already
-python3 -m venv venv
-source venv/bin/activate
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements-dev.txt
 
 # use dev server or gunicorn to run the application
