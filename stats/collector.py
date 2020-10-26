@@ -4,6 +4,7 @@ from django.db import connection, DatabaseError, IntegrityError
 
 #  This SQL caculate the stats from commit table and populate the
 #  AuthorStat table
+
 AUTHSTATS_SQL_1 = """
 
 update stats_authorstat
@@ -13,17 +14,21 @@ set
     commit_count = c.commit_count,
     merge_commit_count = c.merge_commit_count
 from (
-         select stats_id,
-                sum(lines_added)                          lines_added,
-                sum(lines_removed)                        lines_removed,
-                count(stats_commit)                       commit_count,
-                sum(case when is_merge then 1 else 0 end) merge_commit_count
-         from stats_commit,
-              stats_author
-         where stats_commit.author_id = stats_author.id
-         group by stats_id
+        select
+            case
+                when author.is_alias then original.stats_id
+                else author.stats_id
+            end statsid,
+            sum(lines_added)                          lines_added,
+            sum(lines_removed)                        lines_removed,
+            count(stats_commit)                       commit_count,
+            sum(case when is_merge then 1 else 0 end) merge_commit_count
+        from stats_commit
+        join stats_author author on (author_id = author.id)
+        left outer join  stats_author original on (author.original_id = original.id)
+        group by statsid
      ) c
-where c.stats_id = stats_authorstat.id
+where c.statsid = stats_authorstat.id
 
 """
 

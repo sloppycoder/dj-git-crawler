@@ -5,8 +5,9 @@ create view stats_author_stats_view
 as
     select stats_author.id id, name, email, tag1, tag2, tag3,
            lines_added, lines_removed, commit_count, merge_commit_count
-    from stats_author inner join stats_authorstat
-        on stats_id = stats_authorstat.id
+    from stats_author
+    join stats_authorstat  on stats_id = stats_authorstat.id
+    where is_alias is False
 """
 
 
