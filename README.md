@@ -77,7 +77,7 @@ Install the editor and tools first.
 
 1. Install a python runtime, either 3.7 or 3.8 should work. 
 2. [Visual Studio Code](https://code.visualstudio.com/), with extentions [ms-python](https://marketplace.visualstudio.com/items?itemName=ms-python.python), [pylance](https://marketplace.visualstudio.com/items?itemName=ms-python.vscode-pylance) and [python-test-adapter](https://marketplace.visualstudio.com/items?itemName=LittleFoxTeam.vscode-python-test-adapter)
-3. [Poetry environment manager](https://python-poetry.org/docs/#:~:text=Poetry%20is%20a%20tool%20for,%2Fupdate)%20them%20for%20you.)
+3. [Poetry environment manager](https://python-poetry.org/docs/)
 
 Then clone this repo and run the tests
 
