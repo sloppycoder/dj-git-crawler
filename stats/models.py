@@ -142,18 +142,18 @@ class Repository(models.Model):
     @staticmethod
     def register(name, repo_url, repo_type, gitweb_base_url):
         repo = Repository.objects.filter(name=name).first()
-        if repo is None:
-            repo = Repository(
-                name=name,
-                is_remote=is_remote_git_url(repo_url),
-                repo_url=repo_url,
-                gitweb_base_url=gitweb_base_url,
-            )
-            print(f"registering new repo {name} => {name}")
-        repo.type = repo_type
-        if gitweb_base_url:
-            repo.gitweb_base_url = gitweb_base_url.replace("$name", repo.name)
+        if repo:
+            return repo
+        web_url = gitweb_base_url.replace("$name", name) if gitweb_base_url else None
+        repo = Repository(
+            name=name,
+            is_remote=is_remote_git_url(repo_url),
+            repo_url=repo_url,
+            type=repo_type,
+            gitweb_base_url=web_url,
+        )
         repo.save()
+        print(f"registering new repo {name} => {name}")
         return repo
 
 
