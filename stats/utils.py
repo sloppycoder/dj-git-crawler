@@ -6,6 +6,7 @@ IGNORE_PATTERNS = [
     re.compile(
         "^(vendor|Pods|target|YoutuOCWrapper|vos-app-protection|vos-processor|\\.idea|\\.vscode)/."
     ),
+    re.compile("^[a-zA-Z0-9_]*?/Pods/"),
     re.compile("^.*(xcodeproj|xcworkspace)/."),
     re.compile(".*\\.(jar|pbxproj|lock|bk|bak|backup|class|swp|sum)$"),
 ]

@@ -15,6 +15,7 @@ def test_ignore_patterns():
     # Cocoa pod lock
     assert should_ignore_path("Podfile.lock")
     assert should_ignore_path("Pods/Firebase/CoreOnly/Sources/Firebase.h")
+    assert should_ignore_path("Something/Pods/Firebase.h")
     # yarn lock
     assert should_ignore_path("yarn.lock")
     # IDE/Editor files
@@ -31,6 +32,7 @@ def test_ignore_patterns():
     assert not should_ignore_path("src/resources/application.yaml")
     assert not should_ignore_path("idea/misc.xml")
     assert not should_ignore_path("vscode/settings.json")
+    assert not should_ignore_path("Something/another/Pods/Firebase.h")
 
 
 def test_load_crawler_conf(crawler_conf):
