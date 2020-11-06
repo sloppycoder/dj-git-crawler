@@ -13,7 +13,7 @@ from requests import HTTPError
 from atlassian import Bitbucket
 from pydriller import GitRepository, RepositoryMining
 
-from .models import Author, Repository, Commit, ConfigEntry, EPOCH_ZERO
+from .models import Author, Repository, Commit, ConfigEntry
 from .analyzer import update_commit_stats
 
 DEFAULT_CONFIG = "crawler.ini"
@@ -31,16 +31,16 @@ def index_repository(repo_id) -> int:
     count = 0
     try:
         old_commits = repo.all_commit_hash()
-        last_commit_dt = EPOCH_ZERO
+        last_commit_dt = repo.last_commit_at
 
         for commit in RepositoryMining(repo.repo_url).traverse_commits():
-            if commit.hash in old_commits:
-                continue
-
             commit_dt = commit.committer_date
             if commit_dt > last_commit_dt:
                 last_commit_dt = commit_dt
                 # print(f"Updating last_commit_dt to {last_commit_dt}")
+
+            if commit.hash in old_commits:
+                continue
 
             dev = commit.committer
             author = Author.locate(name=dev.name, email=dev.email)
