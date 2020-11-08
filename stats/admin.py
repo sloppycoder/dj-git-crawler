@@ -283,9 +283,13 @@ class CommitAdmin(admin.ModelAdmin):
         base_url = obj.repo.gitweb_base_url
         if not base_url:
             return short_sha
-        url = f"{base_url}/commit/{obj.sha}"
-        # hack: bitbucket url ends with /browse, we need to remove it before adding
-        url = url.replace("browse/commit", "commits")
+        if obj.repo.is_remote:
+            url = f"{base_url}/commit/{obj.sha}"
+            # hack: bitbucket url ends with /browse, we need to remove it before adding
+            url = url.replace("browse/commit", "commits")
+        else:
+            # url served by gitweb
+            url = f"{base_url};a=commit;h={obj.sha}"
         return format_html(
             "<a href='{url}'>{display_url}</a>",
             display_url=short_sha,
