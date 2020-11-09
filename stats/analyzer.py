@@ -10,7 +10,7 @@ from .utils import should_ignore_path
 
 def get_repo_stats(repo_path):
     repo_stats = {"ext": {}, "base_path": {}, "commits": {}}
-    print(f"scanning repo {repo_path}")
+    print(f"get stats on repo {repo_path}")
 
     try:
         for commit in RepositoryMining(repo_path).traverse_commits():
@@ -62,9 +62,9 @@ def analyze_all_repositories(report_file, conf=None):
     from .indexer import enumerate_repositories_by_config
 
     all_stats = {}
-    for is_local, repo_info in enumerate_repositories_by_config(conf):
+    for is_remote, repo_info in enumerate_repositories_by_config(conf):
         repo_path = repo_info["repo_url"]
-        if is_local:
+        if not is_remote:
             all_stats[repo_path] = get_repo_stats(repo_path)
     if report_file and len(report_file) > 3:
         save_stats(all_stats, report_file)

@@ -20,7 +20,7 @@ DEFAULT_CONFIG = "crawler.ini"
 
 
 def register_git_repositories(conf: ConfigParser = None) -> None:
-    for is_local_repp, params in enumerate_repositories_by_config(conf):
+    for _, params in enumerate_repositories_by_config(conf):
         Repository.register(**params)
 
 

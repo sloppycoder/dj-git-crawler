@@ -52,7 +52,7 @@ def index_all_repositories_task(self, **kwargs):
 
 @app.task(bind=True, name="analyze_all_repositories")
 def analyze_all_repositories_task(self, **kwargs):
-    from stats.indexer import analyze_all_repositories
+    from stats.analyzer import analyze_all_repositories
 
     timestamp = datetime.now().strftime("%y%m%d_%H%M%S")
     analyze_all_repositories(f"tmp/stats_{timestamp}")
