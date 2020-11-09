@@ -81,7 +81,7 @@ def test_enumerate_bitbucket_projects(crawler_conf):
     # in test.ini to pass
     projs = enumerate_bitbucket_projects(crawler_conf["project.innersource"])
     names = [p["slug"] for p in projs]
-    assert len(projs) == 4
+    assert len(projs) == 6
     assert "corp-archetype" in names
 
 
