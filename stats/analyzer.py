@@ -1,9 +1,8 @@
 import json
 import os
 
-
-from pydriller import RepositoryMining, ModificationType
 from git import GitCommandError
+from pydriller import ModificationType, RepositoryMining
 
 from .utils import should_ignore_path
 

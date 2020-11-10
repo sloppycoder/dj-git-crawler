@@ -1,6 +1,6 @@
 import traceback
-from django.db import connection, DatabaseError, IntegrityError
 
+from django.db import DatabaseError, IntegrityError, connection
 
 #  This SQL caculate the stats from commit table and populate the
 #  AuthorStat table

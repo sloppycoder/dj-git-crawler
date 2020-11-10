@@ -5,18 +5,19 @@ import pytest
 
 from stats.indexer import (
     DEFAULT_CONFIG,
+    enumerate_bitbucket_projects,
+    enumerate_github_projects,
+    enumerate_gitlab_projects,
     index_repository,
     register_git_repositories,
     repositories_for_indexing,
-    enumerate_gitlab_projects,
-    enumerate_github_projects,
-    enumerate_bitbucket_projects,
 )
-from stats.models import ConfigEntry, Author
+from stats.models import Author, ConfigEntry
+
 from .utils import (
     author_count,
-    create_some_commit,
     commit_count,
+    create_some_commit,
     first_repo,
     repository_count,
 )

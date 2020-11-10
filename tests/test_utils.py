@@ -1,6 +1,6 @@
 import os
 
-from stats.utils import should_ignore_path, is_remote_git_url
+from stats.utils import is_remote_git_url, should_ignore_path
 
 
 def test_ignore_patterns():

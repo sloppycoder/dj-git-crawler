@@ -1,4 +1,5 @@
 exclude: "^$|deploy|scripts|tmp"
+default_stages: [push]
 fail_fast: false
 repos:
   - repo: https://github.com/PyCQA/flake8

@@ -1,4 +1,5 @@
-from django.http import JsonResponse, HttpResponse
+from django.http import HttpResponse, JsonResponse
+
 from .indexer import active_repos
 
 

@@ -1,9 +1,10 @@
 import os
 
-from django.core.management.base import BaseCommand
-from stats.models import ConfigEntry, Job
-from django.db.utils import IntegrityError
 from django.contrib.auth import get_user_model
+from django.core.management.base import BaseCommand
+from django.db.utils import IntegrityError
+
+from stats.models import ConfigEntry, Job
 
 DEFAULT_JOBS = [
     {

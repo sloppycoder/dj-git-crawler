@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
 
-from django.contrib import admin
-from django.contrib import messages
+from django.contrib import admin, messages
 from django.contrib.admin.templatetags.admin_urls import admin_urlname
 from django.contrib.auth.models import Group, User
 from django.db import models
@@ -11,13 +10,13 @@ from django.utils.html import format_html
 from django.utils.http import urlencode
 from django.utils.safestring import SafeText
 
-from .models import Author, AuthorAndStat, ConfigEntry, Repository, Commit, Job
 from .celery import (
-    index_repository_task,
-    index_all_repositories_task,
     discover_repositories_task,
     gather_author_stats_task,
+    index_all_repositories_task,
+    index_repository_task,
 )
+from .models import Author, AuthorAndStat, Commit, ConfigEntry, Job, Repository
 
 #
 # Hack: unregister models from other installed apps

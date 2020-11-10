@@ -1,20 +1,20 @@
 import glob
 import re
 import traceback
-from fnmatch import fnmatch
 from configparser import ConfigParser
 from datetime import datetime, timedelta
+from fnmatch import fnmatch
 from os.path import expanduser
 
-from git import InvalidGitRepositoryError, GitCommandError
-from gitlab import Gitlab, GitlabGetError, GitlabAuthenticationError
-from github import Github, BadCredentialsException
-from requests import HTTPError
 from atlassian import Bitbucket
+from git import GitCommandError, InvalidGitRepositoryError
+from github import BadCredentialsException, Github
+from gitlab import Gitlab, GitlabAuthenticationError, GitlabGetError
 from pydriller import GitRepository, RepositoryMining
+from requests import HTTPError
 
-from .models import Author, Repository, Commit, ConfigEntry
 from .analyzer import update_commit_stats
+from .models import Author, Commit, ConfigEntry, Repository
 
 DEFAULT_CONFIG = "crawler.ini"
 

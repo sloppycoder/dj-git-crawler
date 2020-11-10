@@ -1,10 +1,9 @@
 from configparser import ConfigParser
-
-from django.db import models
 from datetime import datetime, timezone
 
-from .utils import is_remote_git_url
+from django.db import models
 
+from .utils import is_remote_git_url
 
 EPOCH_ZERO = datetime(1970, 1, 1, tzinfo=timezone.utc)
 

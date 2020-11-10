@@ -1,6 +1,6 @@
 from pydriller import GitRepository
 
-from stats.models import Commit, Repository, Author
+from stats.models import Author, Commit, Repository
 
 
 def commit_count(repo):
