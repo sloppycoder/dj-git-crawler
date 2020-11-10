@@ -1,9 +1,15 @@
 from django.http import JsonResponse, HttpResponse
+from .indexer import active_repos
 
 
-def job(request):
-    code = request.GET.get("code", "")
-    if code == "s3cr3t":
-        return JsonResponse({"status": 200})
+def repo(request):
+    if is_authorized(request):
+        repos = [r.repo_url for r in active_repos()]
+        return JsonResponse(repos, safe=False)
     else:
         return HttpResponse("Unauthorized", status=401)
+
+
+def is_authorized(request):
+    code = request.GET.get("code", "")
+    return code == "s3cr3t"

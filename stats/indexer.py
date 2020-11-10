@@ -191,3 +191,9 @@ def enumerate_repositories_by_config(conf):
                     yield True, params
             else:
                 print(f"Unknow server_type = {server_type}, why?!")
+
+
+def active_repos():
+    return Repository.objects.filter(enabled=True).exclude(
+        status=Repository.RepoStatus.ERROR
+    )
