@@ -116,7 +116,7 @@ class AuthorAdmin(admin.ModelAdmin):
         "tag3",
         "is_alias",
     )
-    list_filter = ("is_alias",)
+    list_filter = ("is_alias", "tag1")
     list_display_links = ("name",)
     search_fields = ["name", "email"]
     list_editable = ["tag1", "tag2", "tag3"]
@@ -255,7 +255,7 @@ class CommitAdmin(admin.ModelAdmin):
     )
     list_display_links = ("message",)
     list_select_related = ("repo", "author")
-    list_filter = ("repo__type",)
+    list_filter = ("repo__type", "author__tag1")
     search_fields = ["author__name", "author__email", "repo__name"]
 
     def has_delete_permission(self, request, obj=None):
