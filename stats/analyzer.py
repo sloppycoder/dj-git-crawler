@@ -43,8 +43,8 @@ def get_repo_stats(repo_path):
                     ModificationType.RENAME,
                 ]:
                     print(
-                        f"**** commit {commit.hash} of {repo_path}:{file_path} is weird, "
-                        f"change_type = {mod.change_type} ****"
+                        f"**** commit {commit.hash} of {repo_path}:{file_path} "
+                        f"is weird change_type = {mod.change_type} ****"
                     )
     except GitCommandError as e:
         print(f"Exception get_repo_stats {repo_path} => {str(e)}\n{e}")

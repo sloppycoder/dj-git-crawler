@@ -21,6 +21,7 @@ repos:
             "--in-place",
             "--remove-all-unused-imports",
             "--remove-unused-variable",
+            "--imports=django",
           ]
 
   - repo: https://github.com/psf/black
