@@ -33,7 +33,9 @@ def index_repository(repo_id) -> int:
         old_commits = repo.all_commit_hash()
         last_commit_dt = repo.last_commit_at
 
-        for commit in RepositoryMining(repo.repo_url).traverse_commits():
+        for commit in RepositoryMining(
+            repo.repo_url, include_refs=True, include_remotes=True
+        ).traverse_commits():
             commit_dt = commit.committer_date
             if commit_dt > last_commit_dt:
                 last_commit_dt = commit_dt
