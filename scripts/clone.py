@@ -1,6 +1,6 @@
-# to use this script to clone all repos to local directory
+# to generate the repos.txt, use psql
 #
-# python3 clone.py | bash
+# \copy (select repo_url from stats_repository where enabled is True) to 'repos.txt' With CSV
 #
 
 import json
@@ -22,6 +22,7 @@ with urllib.request.urlopen("http://10.9.107.120:8000/stats/repo?code=s3cr3t") a
         if os.path.isdir(f"{local_path}/{local_repo}/.git"):
             print(f"cd {local_path}/{local_repo}")
             print("pwd")
+            print("git remote prune origin")
             print("git fetch")
             print("git pull")
             print("")

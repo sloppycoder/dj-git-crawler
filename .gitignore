@@ -21,7 +21,7 @@
 *.iws
 .project
 .settings
-
+.cassandra*
 
 # java stuff
 **/target/

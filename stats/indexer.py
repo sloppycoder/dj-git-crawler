@@ -158,7 +158,8 @@ def enumerate_repositories_by_config(conf):
                         params["gitweb_base_url"] = section.get("gitweb_base_url")
                         yield False, params
                 except (InvalidGitRepositoryError, GitCommandError):
-                    print(f"skipping non Git path {path}")
+                    # print(f"skipping non Git path {path}")
+                    pass
                 except Exception as e:
                     print(f"exception when opening git repository at {path} => {e}")
         else:
