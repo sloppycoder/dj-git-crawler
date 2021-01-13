@@ -114,6 +114,9 @@ class Repository(models.Model):
 
     name = models.CharField(max_length=512)
     type = models.CharField(max_length=16, null=True, blank=True)
+    tag1 = models.CharField(max_length=16, null=True, blank=True)
+    tag2 = models.CharField(max_length=16, null=True, blank=True)
+    tag3 = models.CharField(max_length=16, null=True, blank=True)
     enabled = models.BooleanField(default=True)
     is_remote = models.BooleanField(default=False)
     repo_url = models.CharField(max_length=512, null=True)

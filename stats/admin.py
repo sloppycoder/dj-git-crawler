@@ -170,14 +170,24 @@ class RepositoryAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "name",
-        "type",
+        "tag1",
+        "tag2",
+        "tag3",
         "status",
         "enabled",
         "show_git_url",
         "last_commit_at",
         "last_status_at",
     )
-    list_filter = ("enabled", "status", "type", "is_remote", LastCommitDateListFilter)
+    list_filter = (
+        "enabled",
+        "status",
+        "tag1",
+        "tag2",
+        "tag3",
+        "is_remote",
+        LastCommitDateListFilter,
+    )
     search_fields = ["id", "name"]
     actions = [
         "disable_action",
@@ -186,12 +196,12 @@ class RepositoryAdmin(admin.ModelAdmin):
         "scan_action",
     ]
     # the settings below controls inline editing of "type" field
-    list_editable = ["type"]
+    list_editable = ["tag1", "tag2", "tag3"]
     save_on_top = True
 
-    # formfield_overrides = {
-    #     models.CharField: {"widget": TextInput(attrs={"size": "10"})},
-    # }
+    formfield_overrides = {
+        models.CharField: {"widget": TextInput(attrs={"size": "10"})},
+    }
 
     def has_delete_permission(self, request, obj=None):
         return False
