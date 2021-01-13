@@ -1,6 +1,6 @@
 # to generate the repos.txt, use psql
 #
-# \copy (select repo_url from stats_repository where enabled is True) to 'repos.txt' With CSV
+# \copy (select repo_url from stats_repository where enabled is True) to 'repos.txt' With CSV # noqa: E501
 #
 
 import json
