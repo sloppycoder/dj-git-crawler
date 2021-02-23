@@ -9,6 +9,7 @@ IGNORE_PATTERNS = [
     re.compile("^[a-zA-Z0-9_]*?/Pods/"),
     re.compile("^.*(xcodeproj|xcworkspace)/."),
     re.compile(".*\\.(jar|pbxproj|lock|bk|bak|backup|class|swp|sum)$"),
+    re.compile("package.*\\.json$"),
 ]
 
 GIT_REPO_PATTERN = re.compile("^(http://|https://|ssh://|git@).*.\\.git$")
