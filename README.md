@@ -18,6 +18,9 @@ step 2: Create an access token for accessing Gitlab private repositories.
 step 3: Create a ".env" file with the following content,
 ```
 # one way to generate the secret is to run a command like
+# on OS X
+# LC_CTYPE=C tr -dc 'a-z0-9!@#$%^&*(-_=+)' < /dev/urandom | head -c50
+# on Linux 
 # tr -dc 'a-z0-9!@#$%^&*(-_=+)' < /dev/urandom | head -c50
 
 DJANGO_SECRET="some_random_stuff"
