@@ -18,6 +18,8 @@ def test_ignore_patterns():
     assert should_ignore_path("Something/Pods/Firebase.h")
     # yarn lock
     assert should_ignore_path("yarn.lock")
+    # npm lock
+    assert should_ignore_path("package-lock.json")
     # IDE/Editor files
     assert should_ignore_path(".vscode/settings.json")
     assert should_ignore_path(".idea/misc.xml")
