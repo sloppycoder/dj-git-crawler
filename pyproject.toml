@@ -12,7 +12,7 @@ python-dotenv = "^0.14.0"
 celery = {version = "~5.2", extras = ["redis"]}
 django-celery-results = "^2.4.0"
 django-celery-beat = "^2.3.0"
-flower = "^1.0.1"
+flower = "^1.2.0"
 psycopg2 = "^2.9.3"
 python-gitlab = "^2.5.0"
 PyDriller = "^1.15.2"
