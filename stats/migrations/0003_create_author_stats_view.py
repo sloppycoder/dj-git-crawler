@@ -7,7 +7,7 @@ as
            lines_added, lines_removed, commit_count, merge_commit_count
     from stats_author
     join stats_authorstat  on stats_id = stats_authorstat.id
-    where is_alias is False and tag1 <> 'EXT'
+    where is_alias is False and (tag1 is NULL or tag1 <> 'EXT')
 """
 
 
