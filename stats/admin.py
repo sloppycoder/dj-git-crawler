@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 
+from admin_interface.models import Theme
 from django.contrib import admin, messages
 from django.contrib.admin.templatetags.admin_urls import admin_urlname
 from django.contrib.auth.models import Group, User
@@ -9,14 +10,21 @@ from django.shortcuts import resolve_url
 from django.utils.html import format_html
 from django.utils.http import urlencode
 from django.utils.safestring import SafeText
-
-from .celery import (
-    discover_repositories_task,
-    gather_author_stats_task,
-    index_all_repositories_task,
-    index_repository_task,
+from django_celery_beat.models import (
+    ClockedSchedule,
+    CrontabSchedule,
+    IntervalSchedule,
+    SolarSchedule,
 )
+from django_celery_results.models import TaskResult
+
 from .models import Author, AuthorAndStat, Commit, ConfigEntry, Job, Repository
+from .tasks import (
+    discover_repositories,
+    gather_author_stats,
+    index_all_repositories,
+    index_repository,
+)
 
 #
 # Hack: unregister models from other installed apps
@@ -26,27 +34,15 @@ from .models import Author, AuthorAndStat, Commit, ConfigEntry, Job, Repository
 # unregister django-celery-results models
 admin.site.unregister(Group)
 admin.site.unregister(User)
-
 # unregister django-celery-results models
-from django_celery_results.models import TaskResult
-
 admin.site.unregister(TaskResult)
 
 # unregister django-celery-results models
-from django_celery_beat.models import (
-    ClockedSchedule,
-    CrontabSchedule,
-    IntervalSchedule,
-    SolarSchedule,
-)
-
 admin.site.unregister(ClockedSchedule)
 admin.site.unregister(CrontabSchedule)
 admin.site.unregister(IntervalSchedule)
 #  admin.site.unregister(PeriodicTask)
 admin.site.unregister(SolarSchedule)
-
-from admin_interface.models import Theme
 
 admin.site.unregister(Theme)
 
@@ -242,7 +238,7 @@ class RepositoryAdmin(admin.ModelAdmin):
 
     def scan_action(self, request, queryset):
         for repo in queryset.all():
-            index_repository_task.delay(repo_id=repo.id)
+            index_repository.delay(repo_id=repo.id)
         messages.success(request, "Selected repositories will be scanned shortly")
 
     scan_action.short_description = "Scan the selected repositories"
@@ -320,15 +316,15 @@ class JobAdmin(admin.ModelAdmin):
     def run_job(self, request, queryset):
         for job in queryset.all():
             if job.name == "discover":
-                discover_repositories_task.delay()
+                discover_repositories.delay()
                 messages.success(request, "discover repository job will start shortly")
             elif job.name == "index_all":
-                index_all_repositories_task.delay()
+                index_all_repositories.delay()
                 messages.success(
                     request, "index all repositories job will start shortly"
                 )
             elif job.name == "stats":
-                gather_author_stats_task.delay([])
+                gather_author_stats.delay([])
                 messages.success(request, "gather statistics job will start shortly")
             else:
                 messages.info(request, f"doesn't know what job to run for {job.name}")
