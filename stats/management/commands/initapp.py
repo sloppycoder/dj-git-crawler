@@ -23,7 +23,7 @@ DEFAULT_JOBS = [
 
 
 class Command(BaseCommand):
-    help = "Initialize the application by load ini file into database and create users"
+    help = "Initialize the application by load ini file into database and create users"  # noqa: A003,VNE003,E501
 
     def handle(self, *args, **options):
         ini_file = os.getenv("CRAWLER_INI", "crawler/crawler.ini")

@@ -113,7 +113,7 @@ class Repository(models.Model):
         ERROR = "Error"
 
     name = models.CharField(max_length=512)
-    type = models.CharField(max_length=16, null=True, blank=True)
+    type = models.CharField(max_length=16, null=True, blank=True)  # noqa: A003,VNE003,
     tag1 = models.CharField(max_length=16, null=True, blank=True)
     tag2 = models.CharField(max_length=16, null=True, blank=True)
     tag3 = models.CharField(max_length=16, null=True, blank=True)
@@ -137,9 +137,9 @@ class Repository(models.Model):
         self.save()
 
     def all_commit_hash(self):
-        """ return hash of all commits for a repo """
+        """return hash of all commits for a repo"""
         all_commits = Commit.objects.filter(repo=self).all()
-        return dict([(c.sha, c.author.id) for c in all_commits])
+        return dict([(c.sha, c.author.id) for c in all_commits])  # noqa: C404
 
     @staticmethod
     def register(name, repo_url, repo_type, gitweb_base_url):

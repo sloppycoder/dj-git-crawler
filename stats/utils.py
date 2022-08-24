@@ -4,7 +4,7 @@ import re
 # towards commit stats
 IGNORE_PATTERNS = [
     re.compile(
-        "^(vendor|Pods|target|YoutuOCWrapper|vos-app-protection|vos-processor|\\.idea|\\.vscode)/."
+        "^(vendor|Pods|target|YoutuOCWrapper|vos-app-protection|vos-processor|\\.idea|\\.vscode)/."  # noqa: E501
     ),
     re.compile("^[a-zA-Z0-9_]*?/Pods/"),
     re.compile("^.*(xcodeproj|xcworkspace)/."),
