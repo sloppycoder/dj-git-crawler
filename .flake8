@@ -1,9 +1,4 @@
 [flake8]
 exclude = .git,__pycache__,.venv
 max-line-length = 88
-extend-ignore = E203, W503
-per-file-ignores =
-    stats/admin.py:E402
-    stats/utils.py:E501
-    scripts/sync_author_tags.py:E501
-    tests/settings.py:F403,F405
+extend-ignore = E203, W503, T101
