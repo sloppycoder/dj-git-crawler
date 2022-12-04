@@ -1,4 +1,5 @@
 import glob
+import os
 import re
 import traceback
 from configparser import ConfigParser
@@ -83,9 +84,11 @@ def repositories_for_indexing(status=Repository.RepoStatus.READY, cut_off=None) 
 def enumerate_gitlab_projects(section):
     xfilter = section.get("filter", "*")
     group = section.get("group")
-    url = section.get("gitlab_url")
-    token = section.get("gitlab_token")
+    url = section.get("gitlab_url", "https://gitlab.com")
     ssl_verify = section.get("ssl_verify", "yes") == "yes"
+    token = section.get("gitlab_token")
+    if token is None:
+        token = os.environ.get("GITLAB_TOKEN")
     try:
         gl = Gitlab(url, private_token=token, ssl_verify=ssl_verify)
         projects = gl.groups.get(group).projects.list(
