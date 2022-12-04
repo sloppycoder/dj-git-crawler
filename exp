@@ -1,0 +1,2 @@
+poetry export --format=requirements.txt --withou dev > requirements-build.txt
+poetry export --without-hashes --format=requirements.txt --dev > requirements-dev.txt
